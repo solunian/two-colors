@@ -1,28 +1,56 @@
-#include <iostream>
-
 #include "raylib.h"
-#include "test.h"
+
+#include "main_menu.h"
+#include "tetris.h"
+
 
 int main(void) {
-    // this is just testing compiling/linking cuz it's been a while
-    std::cout << test::add(test::number, 7) << std::endl;
+  InitWindow(800, 600, "two colors");
+  SetTargetFPS(60);
 
+  // LOADING - adding resources to memory
+  main_menu::load_res();
 
-    InitWindow(800, 600, "raylib [core] example - basic window");
+  while (!WindowShouldClose()) {
 
-    Font fontTtf = LoadFontEx("assets/BagelFatOne.ttf", 32, nullptr, 0);
+    // UPDATERS - positioning, game state checks, etc.
+    switch (get_game_mode()) {
+      case MainMenu:
+        main_menu::update();
+        break;
+      case Tetris:
+        break;
+      case Chase:
+        break;
+      case Tanks:
+        break;
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-            ClearBackground(RAYWHITE);
-            DrawTextEx(fontTtf, "Congrats! You created your first window!", (Vector2){ 100.0f, 100.0f }, (float)fontTtf.baseSize, 2, MAROON);
-            // DrawText("Congrats! You created your first window!", 189, 200, 20, LIGHTGRAY);
-        EndDrawing();
     }
 
-    UnloadFont(fontTtf);
+    BeginDrawing();
+      
+      ClearBackground(RAYWHITE);
 
-    CloseWindow();
+      // DRAWINGS - adding textures, creating sprites, playing sounds
+      switch (get_game_mode()) {
+        case MainMenu:
+          main_menu::draw();
+          break;
+        case Tetris:
+          break;
+        case Chase:
+          break;
+        case Tanks:
+          break;
+      }
 
-    return 0;
+    EndDrawing();
+  }
+
+  // UNLOADING - freeing resources from memory
+  main_menu::unload_res();
+
+  CloseWindow();
+
+  return 0;
 }
