@@ -2,7 +2,8 @@
 
 #include "main_menu.h"
 
-GameMode game_mode = MainMenu;
+// setting initial GameMode
+GameMode game_mode = Tetris;
 
 GameMode get_game_mode(void) {
   return game_mode;

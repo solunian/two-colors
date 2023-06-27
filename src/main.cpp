@@ -10,6 +10,7 @@ int main(void) {
 
   // LOADING - adding resources to memory
   main_menu::load_res();
+  tetris::load_res();
 
   while (!WindowShouldClose()) {
 
@@ -19,6 +20,7 @@ int main(void) {
         main_menu::update();
         break;
       case Tetris:
+        tetris::update();
         break;
       case Chase:
         break;
@@ -37,6 +39,7 @@ int main(void) {
           main_menu::draw();
           break;
         case Tetris:
+          tetris::draw();
           break;
         case Chase:
           break;
@@ -49,6 +52,7 @@ int main(void) {
 
   // UNLOADING - freeing resources from memory
   main_menu::unload_res();
+  tetris::unload_res();
 
   CloseWindow();
 
