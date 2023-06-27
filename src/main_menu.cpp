@@ -18,6 +18,7 @@ void return_to_main_menu(void) {
 }
 
 namespace main_menu {
+
   Font menu_font;
 
   void load_res(void) {
@@ -40,4 +41,5 @@ namespace main_menu {
 
     DrawTextEx(menu_font, "two colors", (Vector2){ (float)GetScreenWidth() / 3, (float)GetScreenHeight() / 3}, (float)menu_font.baseSize * 2.5, 3.0f, WHITE);
   }
+
 }

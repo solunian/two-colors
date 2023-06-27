@@ -5,6 +5,7 @@
 
 
 int main(void) {
+
   InitWindow(800, 600, "two colors");
   SetTargetFPS(60);
 
@@ -57,4 +58,5 @@ int main(void) {
   CloseWindow();
 
   return 0;
+  
 }
