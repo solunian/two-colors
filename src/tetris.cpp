@@ -1,6 +1,5 @@
 #include <iostream> // for testing :D
-#include <cmath> // used un poco for sine kinda
-#include <cstdlib>
+#include <cmath> // used un poco for sine kinda// if hit bottom or get 
 #include <array>
 
 #include "raylib.h"
@@ -16,7 +15,30 @@ namespace tetris {
       I, J, L, O, S, Z, T,
     };
 
-    static ShapeType gen_random_shapetype(void) {
+    ShapeType shape_type;
+
+    Tetromino(ShapeType t) : shape_type(t) {}
+
+    void rotate(void) {
+      switch (shape_type) {
+        case I:
+          break;
+        case J:
+          break;       
+        case L:
+          break;
+        case O:
+          break;
+        case S:
+          break;
+        case Z:
+          break;
+        case T:
+          break;
+      }
+    }
+
+    static ShapeType next_shapetype(void) {
       srand((uint)time(nullptr));
       return (ShapeType)(rand() % 7);
     }
@@ -46,11 +68,7 @@ namespace tetris {
     
     Grid() {
       // init grid_matrix with empty values
-      for (size_t i = 0; i < grid_matrix.size(); i++) {
-        for (size_t j = 0; j < grid_matrix[i].size(); j++) {
-          grid_matrix[i][j] = Empty;
-        }
-      }
+      clear_grid();
 
       last_sec = GetTime();
 
@@ -129,6 +147,28 @@ namespace tetris {
       }
     }
 
+    void clear_grid(void) {
+      for (size_t i = 0; i < grid_matrix.size(); i++) {
+        for (size_t j = 0; j < grid_matrix[i].size(); j++) {
+          grid_matrix[i][j] = Empty;
+        }
+      }
+    }
+
+    void reset(void) {
+      clear_grid();
+
+      grid_matrix[4][3] = Fixed;
+      grid_matrix[6][2] = Fixed;
+      grid_matrix[9][2] = Fixed;
+      grid_matrix[1][0] = Fixed;
+      grid_matrix[12][7] = Active;
+      grid_matrix[3][9] = Active;
+      grid_matrix[0][1] = Active;
+      grid_matrix[8][1] = Active;
+      grid_matrix[14][6] = Active;
+    }
+
     void update(void) {
       x = GetScreenWidth() / 2 - width / 2;
       y = GetScreenHeight() / 2 - height / 2;
@@ -155,6 +195,10 @@ namespace tetris {
 
   void update(void) {
     grid.update();
+
+    if (IsKeyPressed(KEY_R)) {
+      grid.reset();
+    }
   }
 
   void draw(void) {

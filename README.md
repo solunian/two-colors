@@ -5,8 +5,9 @@ A game collection that uses only two main colors. Designed to help people correc
 Disclaimer: This is a not a legitimate medical treatment; use at your own risk. Don't sue me, please. But seriously, are you actually using this?
 
 ## Games
-- [ ] tetris clone
-- [ ] getting chased?
+
+- [ ] tetris clone: [reference](https://codeincomplete.com/articles/javascript-tetris/)
+- [ ] getting chased
 - [ ] tanks from wii play: wasd to move, mouse/click to fire bullets, space bar for dropping a mine
 - [ ] shooty skies clone?
 
