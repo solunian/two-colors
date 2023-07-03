@@ -26,3 +26,16 @@ Disclaimer: This is a not a legitimate medical treatment; use at your own risk. 
 - to add headers and lib archive for the compiler, headers must be located at `/usr/local/include` and lib should be at `/usr/local/lib`
 - use the raylib wiki because it is a little messy
 - reference the Makefile for running
+
+### windows
+
+- using minGW-w64 from here -> https://www.mingw-w64.org/downloads/#mingw-builds, https://winlibs.com/
+  - unzip and then place mingw64 folder somewhere safe like -> `C:\`
+  - then add mingw64\bin to PATH with environment variables
+  - i copied `mingw32-make` in bin, then renamed the copy to `make` as a "fake alias"
+- download the most recent stable release of raylib -> https://github.com/raysan5/raylib/releases
+  - should be either win32/win64 and mingw-w64 version
+  - then take the `lib` and `include` folders and move it into this project
+- make a folder called build (`make wininit`)
+- then by running `make win` everything should run
+

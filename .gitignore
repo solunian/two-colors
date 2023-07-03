@@ -1,6 +1,8 @@
 # build files?
 build/
 .vscode
+include/
+lib/
 
 # Prerequisites
 *.d

@@ -1,5 +1,6 @@
 #include <iostream> // for testing :D
 #include <cmath> // used un poco for sine kinda// if hit bottom or get 
+#include <ctime>
 #include <array>
 
 #include "raylib.h"
@@ -39,7 +40,7 @@ namespace tetris {
     }
 
     static ShapeType next_shapetype(void) {
-      srand((uint)time(nullptr));
+      srand((unsigned int)std::time(nullptr));
       return (ShapeType)(rand() % 7);
     }
   };
