@@ -13,6 +13,7 @@ Disclaimer: This is a not a legitimate medical treatment; use at your own risk. 
 
 ## Dev Notes
 
+- RAYLIB IS COMPLICATED TO PORT, SO I THINK IM JUST GONNA MAKE TETRIS IN RAYLIB AND AN ACTUAL GAME IN GODOT CUZ I LIKE TO LIVE SANELY
 - this probably doesn't work
 - using raylib, but idk how to distribute executables properly
 - i bet i'll have a bunch of lovely memory leaks...
