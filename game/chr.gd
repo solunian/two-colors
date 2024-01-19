@@ -18,6 +18,5 @@ func _process(delta):
 	if Input.is_key_pressed(KEY_DOWN):
 		position += Vector2(0, 10)
 
-
 func _on_draw():
 	draw_circle(Vector2(100, 1), 100, Color.BLUE_VIOLET)
