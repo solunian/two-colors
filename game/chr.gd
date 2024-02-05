@@ -20,4 +20,4 @@ func _process(delta):
 
 
 func _on_draw():
-	draw_circle(Vector2(100, 1), 100, Color.BLUE_VIOLET)
+	draw_rect(Rect2(0, 0, 100, 100), Color.BLUE_VIOLET)

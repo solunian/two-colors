@@ -11,6 +11,6 @@ config_version=5
 [application]
 
 config/name="two-colors"
-run/main_scene="res://chr.tscn"
+run/main_scene="res://tetris.tscn"
 config/features=PackedStringArray("4.0", "Forward Plus")
 config/icon="res://icon.svg"
