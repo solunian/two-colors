@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://cbm1xapdss4he"]
+
+[ext_resource type="Script" path="res://tetris/tetris.gd" id="1_wyki1"]
+[ext_resource type="Texture2D" uid="uid://b2mgdmsrexq5j" path="res://assets/red.png" id="2_elbns"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u0fdq"]
+texture = ExtResource("2_elbns")
+texture_region_size = Vector2i(7, 7)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_2pwne"]
+tile_size = Vector2i(7, 7)
+sources/1 = SubResource("TileSetAtlasSource_u0fdq")
+
+[node name="grid" type="TileMap"]
+tile_set = SubResource("TileSet_2pwne")
+format = 2
+layer_0/tile_data = PackedInt32Array(10, 65537, 1, 65546, 65537, 1, 131082, 65537, 1, 196618, 65537, 1, 262154, 65537, 1, 327690, 65537, 1, 393226, 65537, 1, 458762, 65537, 1, 524298, 65537, 1, 589834, 65537, 1, 655370, 65537, 1, 720906, 65537, 1, 786442, 65537, 1, 851978, 65537, 1, 917514, 65537, 1, 983050, 65537, 1, 1048586, 65537, 1, 1114122, 65537, 1, 1179658, 65537, 1, 1245194, 65537, 1, 1310731, 65537, 1, 1310732, 65537, 1, 1310733, 65537, 1, 1310734, 65537, 1, 1310735, 65537, 1, 1310736, 65537, 1, 1310737, 65537, 1, 1310738, 65537, 1, 1310739, 65537, 1, 1310740, 65537, 1, 1245205, 65537, 1, 1179669, 65537, 1, 1114133, 65537, 1, 1048597, 65537, 1, 983061, 65537, 1, 917525, 65537, 1, 851989, 65537, 1, 786453, 65537, 1, 720917, 65537, 1, 655381, 65537, 1, 327701, 65537, 1, 589845, 65537, 1, 524309, 65537, 1, 458773, 65537, 1, 393237, 65537, 1, 262165, 65537, 1, 196629, 65537, 1, 131093, 65537, 1, 65557, 65537, 1, 21, 65537, 1, -65525, 65537, 1, -65524, 65537, 1, -65523, 65537, 1, -65522, 65537, 1, -65521, 65537, 1, -65520, 65537, 1, -65519, 65537, 1, -65518, 65537, 1, -65517, 65537, 1, -65516, 65537, 1)
+script = ExtResource("1_wyki1")
+
+[node name="red" type="Sprite2D" parent="."]
+position = Vector2(304, 164)
+texture = ExtResource("2_elbns")
+centered = false

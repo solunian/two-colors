@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cse6md0kj6opl"]
-
-[ext_resource type="Script" path="res://chr.gd" id="1_i7rpd"]
-
-[node name="chr" type="Node2D"]
-position = Vector2(134, 190)
-script = ExtResource("1_i7rpd")
-
-[connection signal="draw" from="." to="." method="_on_draw"]
