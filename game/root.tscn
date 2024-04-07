@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cse6md0kj6opl"]
+
+[node name="root" type="Node2D"]
+position = Vector2(2.08165e-12, 2.08165e-12)
+
+[connection signal="draw" from="." to="." method="_on_draw"]
