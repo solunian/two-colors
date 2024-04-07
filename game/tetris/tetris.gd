@@ -46,7 +46,7 @@ func init_board():
 func spawn_piece():
 	pass
 
-func log_piece(x: int, y: int, piece: Array, piece_idx: int):
+func log_piece(piece: Array, piece_idx: int):
 	var val = "";
 	for idx in range(16):
 		if idx % 4 == 0:
@@ -75,7 +75,7 @@ func _ready():
 	print(queue)
 	
 	# testing?
-	log_piece(0, 0, pieces.J, 3);
+	log_piece(pieces.J, 3);
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
