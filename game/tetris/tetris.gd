@@ -1,4 +1,4 @@
-extends TileMap
+extends TileMapLayer
 
 # some logic code from https://codeincomplete.com/articles/javascript-tetris/
 # tetris tetrominos all laid out
@@ -44,7 +44,9 @@ func init_board():
 
 # spawn "upwards" according to shine!
 func spawn_piece():
-	pass
+	set_cell(Vector2i(10, 5), 0)
+	print("what the hell")
+
 
 func log_piece(piece: Array, piece_idx: int):
 	var val = "";
@@ -72,8 +74,10 @@ func lateral_move(): # move side to side
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	init_board();
-	fill_piece_queue();
+	init_board()
+	fill_piece_queue()
+	
+	
 	
 	#print(queue)
 	
@@ -83,12 +87,14 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	# update queue with new values whe
+	# update queue with new values when queue is less than pieces size
 	if piece_queue.size() <= pieces.size():
 		fill_piece_queue(3)
 	
+	
 	if Input.is_key_pressed(KEY_RIGHT):
 		move_queue.append(DIR.RIGHT)
+		spawn_piece()
 	if Input.is_key_pressed(KEY_LEFT):
 		move_queue.append(DIR.LEFT)
 	if Input.is_key_pressed(KEY_UP):
