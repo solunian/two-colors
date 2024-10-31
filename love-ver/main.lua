@@ -5,7 +5,7 @@ function love.load()
   love.window.setTitle("two colors")
 
   board.reinit_playfield()
-  board.print_playfield(board.w, board.h)
+  -- board.print_playfield(board.w, board.h)
 end
 
 function love.update(dt)
