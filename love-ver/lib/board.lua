@@ -10,7 +10,7 @@ b.ss = 25 -- square size for grid
 b.w = 10 -- width
 b.h = 20 -- height
 b.sh = 3 -- spawn height, playfield must have 3 extra spawn rows
-b.ts = { EMPTY = 1, FILLED = 2} -- block types
+b.ts = { EMPTY = 1, FILLED = 2, ACTIVE = 3} -- block types
 
 
 -- playfield is upside down!
@@ -43,6 +43,9 @@ b.draw = function ()
       for col=1,b.w do
         if b.pf[row][col] == b.ts.FILLED then
           love.graphics.setColor(love.math.colorFromBytes(255, ((row * 10) % 255), ((col * 10) % 255)))
+          love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
+        elseif b.pf[row][col] == b.ts.ACTIVE then
+          love.graphics.setColor(0, 1, 0, 1);
           love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
         end
       end

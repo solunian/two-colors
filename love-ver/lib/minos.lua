@@ -102,16 +102,31 @@ m.orientation = m.ori.U
 
 
 -- helper functions
-m.test_pos = function ()
+
+-- tests position after movement change to x,y! undo behavior if not working
+-- playfield not updated before run!
+m.does_pos_work = function ()
+  return true
 end
 
 
 -- instance functions, uses instance variables (also board variables)
-m.update_playfield = function (playfield)
+
+m.update_playfield = function ()
+  -- clear old active blocks
+  for row=1,board.sh+board.h do
+    for col=1,board.w do
+      if board.pf[row][col] == board.ts.ACTIVE then
+        board.pf[row][col] = board.ts.EMPTY
+      end
+    end
+  end
+
+  -- replace with "updated" active blocks
   for row=1,4 do
     for col=1,4 do
       if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
-        playfield[row + m.y][col + m.x] = board.ts.FILLED
+        board.pf[row + m.y][col + m.x] = board.ts.ACTIVE
       end
     end
   end
@@ -130,19 +145,50 @@ m.spawn = function (type)
   m.type = type
   m.orientation = m.ori.U
 
-  m.update_playfield(board.pf)
+  m.update_playfield()
 end
 
 
 m.lock = function ()
 end
 
-m.rotate = function (s_ori, e_ori)
-
-  if m.type ~= m.ts.I then
-    -- test position, then kicks
-  else
+m.lateral_move = function (dx)
+  m.x = m.x + dx
+  -- test pos
+  if not m.does_pos_work() then
+    m.x = m.x - dx
   end
+  m.update_playfield()
+end
+
+m.drop = function ()
+  m.y = m.y + 1
+  -- test pos
+  if not m.does_pos_work() then
+    m.y = m.y - 1
+  end
+  m.update_playfield()
+end
+
+m.rotate = function (s_ori, e_ori)
+  m.orientation = e_ori
+  local is_rotation_90 = math.abs((e_ori % 4) - (s_ori % 4)) == 0
+
+  if is_rotation_90 then -- test 90 kicks
+    if m.type ~= m.ts.I then
+      -- test position, then kicks_i
+    elseif m.type ~= m.ts.O then
+      -- test position, then kicks_jlstz
+    end
+  else -- test 180 kicks
+    if m.type ~= m.ts.I then
+      -- test position, then kicks_i
+    elseif m.type ~= m.ts.O then
+      -- test position, then kicks_jlstz
+    end
+  end
+
+  m.update_playfield()
 end
 
 m.reset = function ()
