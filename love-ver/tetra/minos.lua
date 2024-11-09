@@ -1,13 +1,17 @@
 local math = require("math")
+local os = require("os")
+local table = require("table")
 
-local board = require("lib.board")
+local board = require("tetra.board")
 
 local m = {}
 
 -- mino types
-m.ts = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
+m.ty = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
 -- mino orientations
 m.ori = { U = 1, R = 2, D = 3, L = 4 }
+
+m.rot_ty = { EMPTY = 0, FILLED = 1 }
 
 -- all clockwise rotations. 4x4 with only I spanning 4 technically
 m.rots = {
@@ -97,27 +101,46 @@ m.kicks180_i = {
 -- x,y position is of top left corner of 4x4, can be negative!
 m.x = 0
 m.y = 0
-m.type = m.ts.I
+m.type = m.ty.I
 m.orientation = m.ori.U
 
 
--- helper functions
+-- helper / local (private) functions
 
 -- tests position after movement change to x,y! undo behavior if not working
 -- playfield not updated before run!
-m.does_pos_work = function ()
+local does_pos_work = function ()
+  local rotation = m.rots[m.type][m.orientation]
+
+  for row=1,4 do
+    for col=1,4 do
+      local spot = rotation[(row - 1) * 4 + col]
+      if spot == m.rot_ty.FILLED then
+        local uni_x = m.x + col
+        local uni_y = m.y + row
+
+        -- check playfield bounds
+        if uni_x < 1 or uni_x > board.w or uni_y < 1 or uni_y > board.sh + board.h then
+          return false
+        end
+
+        -- check filled pieces
+        if board.pf[uni_y][uni_x] == board.ty.FILLED then
+          return false
+        end
+      end
+    end
+  end
+
   return true
 end
 
-
--- instance functions, uses instance variables (also board variables)
-
-m.update_playfield = function ()
+local update_playfield = function ()
   -- clear old active blocks
   for row=1,board.sh+board.h do
     for col=1,board.w do
-      if board.pf[row][col] == board.ts.ACTIVE then
-        board.pf[row][col] = board.ts.EMPTY
+      if board.pf[row][col] == board.ty.ACTIVE then
+        board.pf[row][col] = board.ty.EMPTY
       end
     end
   end
@@ -126,13 +149,60 @@ m.update_playfield = function ()
   for row=1,4 do
     for col=1,4 do
       if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
-        board.pf[row + m.y][col + m.x] = board.ts.ACTIVE
+        board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
       end
     end
   end
 end
 
-m.spawn = function (type)
+local bag = {}
+
+local bag_append_random_seven = function (n) -- n = # of bags to be appended
+  math.randomseed(os.time())
+
+  local new_bag = {}
+  for _=1,n do
+    for ty=1,7 do
+      table.insert(new_bag, ty)
+    end
+  end
+
+  -- Fisher–Yates shuffle / Durstenfield shuffle? / Algorithm P?
+  -- basically emplace randomize array
+  -- for i=1,7*n-1 do
+  --   local pick = math.random(i, 7 * n)
+  --   new_bag[i], new_bag[pick] = new_bag[pick], new_bag[i] -- swap
+  -- end
+
+  -- insert all of new_bag into `bag`
+  -- for i=1,7*n do
+  --   table.insert(bag, new_bag[i])
+  -- end
+
+  -- shuffle and insertion at the same time
+  for i=1,7*n-1 do
+    local pick = math.random(i, 7 * n)
+    table.insert(bag, new_bag[pick])
+    new_bag[pick] = new_bag[i]
+  end
+end
+
+local bag_pop = function ()
+  if #bag < 7 then
+    bag_append_random_seven(3)
+  end
+  return table.remove(bag, 1)
+end
+
+local peek_bag = function (n)
+end
+
+
+-- instance functions, uses instance variables (also board variables)
+
+m.spawn = function ()
+  local type = bag_pop()
+
   local center_x = 0
   if board.w % 2 ~= 0 then
     center_x = math.floor(board.w / 2) - 1 -- odd offset -1 from middle
@@ -145,55 +215,91 @@ m.spawn = function (type)
   m.type = type
   m.orientation = m.ori.U
 
-  m.update_playfield()
+  update_playfield()
 end
 
-
+-- direct board pf manipulation
 m.lock = function ()
+  for row=1,4 do
+    for col=1,4 do
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+        board.pf[row + m.y][col + m.x] = board.ty.FILLED
+      end
+    end
+  end
+
+  board.active = false
 end
 
 m.lateral_move = function (dx)
+  if not board.active then
+    return
+  end
+
   m.x = m.x + dx
   -- test pos
-  if not m.does_pos_work() then
+  if not does_pos_work() then
     m.x = m.x - dx
   end
-  m.update_playfield()
+  update_playfield()
 end
 
 m.drop = function ()
+  if not board.active then
+    return
+  end
+
   m.y = m.y + 1
   -- test pos
-  if not m.does_pos_work() then
+  if not does_pos_work() then
     m.y = m.y - 1
   end
-  m.update_playfield()
+  update_playfield()
+end
+
+m.hard_drop = function ()
+  repeat
+    m.y = m.y + 1
+    -- test pos
+  until not does_pos_work()
+  m.y = m.y - 1 -- push back one pos when pos fails
+
+  update_playfield()
+
+  m.lock()
 end
 
 m.rotate = function (s_ori, e_ori)
+  if not board.active then
+    return
+  end
+
   m.orientation = e_ori
+  if not does_pos_work() then
+    m.orientation = s_ori
+  end
+
   local is_rotation_90 = math.abs((e_ori % 4) - (s_ori % 4)) == 0
 
   if is_rotation_90 then -- test 90 kicks
-    if m.type ~= m.ts.I then
+    if m.type ~= m.ty.I then
       -- test position, then kicks_i
-    elseif m.type ~= m.ts.O then
+    elseif m.type ~= m.ty.O then
       -- test position, then kicks_jlstz
     end
   else -- test 180 kicks
-    if m.type ~= m.ts.I then
+    if m.type ~= m.ty.I then
       -- test position, then kicks_i
-    elseif m.type ~= m.ts.O then
+    elseif m.type ~= m.ty.O then
       -- test position, then kicks_jlstz
     end
   end
 
-  m.update_playfield()
+  update_playfield()
 end
 
-m.reset = function ()
-  
+m.reinit = function ()
+  bag_append_random_seven(1) -- single shuffled 7-bag appended by default
 end
-
 
 return m

@@ -1,6 +1,5 @@
 local love = require("love")
 local table = require("table")
-local io = require("io")
 
 local b = {}
 
@@ -10,19 +9,20 @@ b.ss = 25 -- square size for grid
 b.w = 10 -- width
 b.h = 20 -- height
 b.sh = 3 -- spawn height, playfield must have 3 extra spawn rows
-b.ts = { EMPTY = 1, FILLED = 2, ACTIVE = 3} -- block types
+b.ty = { EMPTY = 1, FILLED = 2, ACTIVE = 3 } -- block types
 
 
 -- playfield is upside down!
 -- (3, 3) is top left, (23,23) is bottom right, rows 1-3 are spawn rows
 b.pf = {}
+b.active = false
 
 -- reset and init playfield
 b.reinit_playfield = function ()
   for _=1,b.sh+b.h do
     local curr = {}
     for _=1,b.w do
-      table.insert(curr, b.ts.EMPTY);
+      table.insert(curr, b.ty.EMPTY);
     end
     table.insert(b.pf, curr);
   end
@@ -41,10 +41,10 @@ b.draw = function ()
     -- draw current board with all the squares
     for row=1,b.sh+b.h do
       for col=1,b.w do
-        if b.pf[row][col] == b.ts.FILLED then
+        if b.pf[row][col] == b.ty.FILLED then
           love.graphics.setColor(love.math.colorFromBytes(255, ((row * 10) % 255), ((col * 10) % 255)))
           love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
-        elseif b.pf[row][col] == b.ts.ACTIVE then
+        elseif b.pf[row][col] == b.ty.ACTIVE then
           love.graphics.setColor(0, 1, 0, 1);
           love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
         end
@@ -61,6 +61,5 @@ b.draw = function ()
     love.graphics.line(col * b.ss, 0, col * b.ss, (b.h + b.sh) * b.ss)
   end
 end
-
 
 return b
