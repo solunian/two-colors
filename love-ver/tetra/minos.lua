@@ -7,14 +7,14 @@ local board = require("tetra.board")
 local m = {}
 
 -- mino types
-m.ty = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
+local ty = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
 -- mino orientations
-m.ori = { U = 1, R = 2, D = 3, L = 4 }
+local ori = { U = 1, R = 2, D = 3, L = 4 }
 
-m.rot_ty = { EMPTY = 0, FILLED = 1 }
+local rot_ty = { EMPTY = 0, FILLED = 1 }
 
 -- all clockwise rotations. 4x4 with only I spanning 4 technically
-m.rots = {
+local rots = {
   { -- I
     {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
@@ -60,36 +60,36 @@ m.rots = {
 }
 
 -- test basic rotations, then 4 kicks (x,y offsets)
-m.kicks_jlstz = {
-  {-1, 0}, {-1, 1}, { 0,-2}, {-1,-2}, -- 0>>1
-  { 1, 0}, { 1,-1}, { 0, 2}, { 1, 2}, -- 1>>0
-  { 1, 0}, { 1,-1}, { 0, 2}, { 1, 2}, -- 1>>2
-  {-1, 0}, {-1, 1}, { 0,-2}, {-1,-2}, -- 2>>1
-  { 1, 0}, { 1, 1}, { 0,-2}, { 1,-2}, -- 2>>3
-  {-1, 0}, {-1,-1}, { 0, 2}, {-1, 2}, -- 3>>2
-  {-1, 0}, {-1,-1}, { 0, 2}, {-1, 2}, -- 3>>0
-  { 1, 0}, { 1, 1}, { 0,-2}, { 1,-2}, -- 0>>3
+local kicks_jlstz = {
+  {{-1, 0}, {-1, 1}, { 0,-2}, {-1,-2}}, -- 0>>1
+  {{ 1, 0}, { 1,-1}, { 0, 2}, { 1, 2}}, -- 1>>0
+  {{ 1, 0}, { 1,-1}, { 0, 2}, { 1, 2}}, -- 1>>2
+  {{-1, 0}, {-1, 1}, { 0,-2}, {-1,-2}}, -- 2>>1
+  {{ 1, 0}, { 1, 1}, { 0,-2}, { 1,-2}}, -- 2>>3
+  {{-1, 0}, {-1,-1}, { 0, 2}, {-1, 2}}, -- 3>>2
+  {{-1, 0}, {-1,-1}, { 0, 2}, {-1, 2}}, -- 3>>0
+  {{ 1, 0}, { 1, 1}, { 0,-2}, { 1,-2}}, -- 0>>3
 }
 
-m.kicks_i = {
-  {-2, 0}, { 1, 0}, {-2,-1}, { 1, 2}, -- 0>>1
-  { 2, 0}, {-1, 0}, { 2, 1}, {-1,-2}, -- 1>>0
-  {-1, 0}, { 2, 0}, {-1, 2}, { 2,-1}, -- 1>>2
-  { 1, 0}, {-2, 0}, { 1,-2}, {-2, 1}, -- 2>>1
-  { 2, 0}, {-1, 0}, { 2, 1}, {-1,-2}, -- 2>>3
-  {-2, 0}, { 1, 0}, {-2,-1}, { 1, 2}, -- 3>>2
-  { 1, 0}, {-2, 0}, { 1,-2}, {-2, 1}, -- 3>>0
-  {-1, 0}, { 2, 0}, {-1, 2}, { 2,-1}, -- 0>>3
+local kicks_i = {
+  {{-2, 0}, { 1, 0}, {-2,-1}, { 1, 2}}, -- 0>>1
+  {{ 2, 0}, {-1, 0}, { 2, 1}, {-1,-2}}, -- 1>>0
+  {{-1, 0}, { 2, 0}, {-1, 2}, { 2,-1}}, -- 1>>2
+  {{ 1, 0}, {-2, 0}, { 1,-2}, {-2, 1}}, -- 2>>1
+  {{ 2, 0}, {-1, 0}, { 2, 1}, {-1,-2}}, -- 2>>3
+  {{-2, 0}, { 1, 0}, {-2,-1}, { 1, 2}}, -- 3>>2
+  {{ 1, 0}, {-2, 0}, { 1,-2}, {-2, 1}}, -- 3>>0
+  {{-1, 0}, { 2, 0}, {-1, 2}, { 2,-1}}, -- 0>>3
 }
 
-m.kicks180_jlstz = {
+local kicks180_jlstz = {
   {{ 1, 0},{ 2, 0},{ 1, 1},{ 2, 1},{-1, 0},{-2, 0},{-1, 1},{-2, 1},{ 0,-1},{ 3, 0},{-3, 0}},  -- 0>>2─┐
   {{ 0, 1},{ 0, 2},{-1, 1},{-1, 2},{ 0,-1},{ 0,-2},{-1,-1},{-1,-2},{ 1, 0},{ 0, 3},{ 0,-3}},  -- 1>>3─┼┐
   {{-1, 0},{-2, 0},{-1,-1},{-2,-1},{ 1, 0},{ 2, 0},{ 1,-1},{ 2,-1},{ 0, 1},{-3, 0},{ 3, 0}},  -- 2>>0─┘│
   {{ 0, 1},{ 0, 2},{ 1, 1},{ 1, 2},{ 0,-1},{ 0,-2},{ 1,-1},{ 1,-2},{-1, 0},{ 0, 3},{ 0,-3}},  -- 3>>1──┘
 }
 
-m.kicks180_i = {
+local kicks180_i = {
   {{-1, 0},{-2, 0},{ 1, 0},{ 2, 0},{ 0, 1}},  -- 0>>2─┐
   {{ 0, 1},{ 0, 2},{ 0,-1},{ 0,-2},{-1, 0}},  -- 1>>3─┼┐
   {{ 1, 0},{ 2, 0},{-1, 0},{-2, 0},{ 0,-1}},  -- 2>>0─┘│
@@ -101,8 +101,8 @@ m.kicks180_i = {
 -- x,y position is of top left corner of 4x4, can be negative!
 m.x = 0
 m.y = 0
-m.type = m.ty.I
-m.orientation = m.ori.U
+m.type = ty.I
+m.orientation = ori.U
 
 
 -- helper / local (private) functions
@@ -110,12 +110,12 @@ m.orientation = m.ori.U
 -- tests position after movement change to x,y! undo behavior if not working
 -- playfield not updated before run!
 local does_pos_work = function ()
-  local rotation = m.rots[m.type][m.orientation]
+  local rotation = rots[m.type][m.orientation]
 
   for row=1,4 do
     for col=1,4 do
       local spot = rotation[(row - 1) * 4 + col]
-      if spot == m.rot_ty.FILLED then
+      if spot == rot_ty.FILLED then
         local uni_x = m.x + col
         local uni_y = m.y + row
 
@@ -148,7 +148,7 @@ local update_playfield = function ()
   -- replace with "updated" active blocks
   for row=1,4 do
     for col=1,4 do
-      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
         board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
       end
     end
@@ -162,8 +162,8 @@ local bag_append_random_seven = function (n) -- n = # of bags to be appended
 
   local new_bag = {}
   for _=1,n do
-    for ty=1,7 do
-      table.insert(new_bag, ty)
+    for tys=1,7 do
+      table.insert(new_bag, tys)
     end
   end
 
@@ -197,6 +197,46 @@ end
 local peek_bag = function (n)
 end
 
+local get_kick = function (type, s_ori, e_ori)
+  if type ~= ty.I then
+    if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+      return kicks_jlstz[1]
+    elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+     return kicks_jlstz[2]
+    elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+      return kicks_jlstz[3]
+    elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+      return kicks_jlstz[4]
+    elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+      return kicks_jlstz[5]
+    elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+      return kicks_jlstz[6]
+    elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+      return kicks_jlstz[7]
+    elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+      return kicks_jlstz[8]
+    end
+  else
+    if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+      return kicks_i[1]
+    elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+     return kicks_i[2]
+    elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+      return kicks_i[3]
+    elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+      return kicks_i[4]
+    elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+      return kicks_i[5]
+    elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+      return kicks_i[6]
+    elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+      return kicks_i[7]
+    elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+      return kicks_i[8]
+    end
+  end
+end
+
 
 -- instance functions, uses instance variables (also board variables)
 
@@ -213,7 +253,7 @@ m.spawn = function ()
   m.x = center_x
   m.y = 0
   m.type = type
-  m.orientation = m.ori.U
+  m.orientation = ori.U
 
   update_playfield()
 end
@@ -222,7 +262,7 @@ end
 m.lock = function ()
   for row=1,4 do
     for col=1,4 do
-      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
         board.pf[row + m.y][col + m.x] = board.ty.FILLED
       end
     end
@@ -274,25 +314,40 @@ m.rotate = function (s_ori, e_ori)
     return
   end
 
-  m.orientation = e_ori
-  if not does_pos_work() then
-    m.orientation = s_ori
-  end
-
+  local old_x, old_y = m.x, m.y
   local is_rotation_90 = math.abs((e_ori % 4) - (s_ori % 4)) == 0
 
-  if is_rotation_90 then -- test 90 kicks
-    if m.type ~= m.ty.I then
-      -- test position, then kicks_i
-    elseif m.type ~= m.ty.O then
-      -- test position, then kicks_jlstz
+  m.orientation = e_ori
+
+  if not does_pos_work() then -- test kicks!
+    if is_rotation_90 then -- test 90 kicks
+      local kick = get_kick(m.type, s_ori, e_ori)
+
+      for k in kick do
+        m.x, m.y = m.x + k[1], m.y + k[2]
+        if not does_pos_work() then
+          m.x, m.y = m.x - k[1], m.y - k[2]
+        else
+          break
+        end
+      end
+      -- if m.type ~= m.ty.I then
+      --   -- test position, then kicks_i
+      -- elseif m.type ~= m.ty.O then
+      --   -- test position, then kicks_jlstz
+      -- end
+    else -- test 180 kicks
+      -- if m.type ~= m.ty.I then
+      --   -- test position, then kicks_i
+      -- elseif m.type ~= m.ty.O then
+      --   -- test position, then kicks_jlstz
+      -- end
     end
-  else -- test 180 kicks
-    if m.type ~= m.ty.I then
-      -- test position, then kicks_i
-    elseif m.type ~= m.ty.O then
-      -- test position, then kicks_jlstz
-    end
+  end
+
+  if not does_pos_work() then
+    m.orientation = s_ori
+    m.x, m.y = old_x, old_y
   end
 
   update_playfield()
