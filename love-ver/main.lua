@@ -3,6 +3,7 @@ local math = require("math")
 
 local board = require("tetra.board")
 local minos = require("tetra.minos")
+local display = require("tetra.display")
 
 local gravity_rate = 1 -- seconds until gravity drop
 
@@ -179,4 +180,5 @@ end
 
 function love.draw()
   board.draw()
+  display.draw()
 end

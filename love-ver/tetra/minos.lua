@@ -9,12 +9,12 @@ local m = {}
 -- mino types
 local ty = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
 -- mino orientations
-local ori = { U = 1, R = 2, D = 3, L = 4 }
+m.ori = { U = 1, R = 2, D = 3, L = 4 }
 
-local rot_ty = { EMPTY = 0, FILLED = 1 }
+m.rot_ty = { EMPTY = 0, FILLED = 1 }
 
 -- all clockwise rotations. 4x4 with only I spanning 4 technically
-local rots = {
+m.rots = {
   { -- I
     {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
@@ -103,7 +103,7 @@ local kicks180_i = {
 m.x = 0
 m.y = 0
 m.type = ty.I
-m.orientation = ori.U
+m.orientation = m.ori.U
 m.hold_type = 0
 local holdable = true
 
@@ -112,12 +112,12 @@ local holdable = true
 -- tests position after movement change to x,y! undo behavior if not working
 -- playfield not updated before run!
 local does_pos_work = function ()
-  local rotation = rots[m.type][m.orientation]
+  local rotation = m.rots[m.type][m.orientation]
 
   for row=1,4 do
     for col=1,4 do
       local spot = rotation[(row - 1) * 4 + col]
-      if spot == rot_ty.FILLED then
+      if spot == m.rot_ty.FILLED then
         local uni_x = m.x + col
         local uni_y = m.y + row
 
@@ -141,7 +141,7 @@ local generate_shadow = function ()
   local sy = m.y
 
   -- does_pos_work for shadow
-  local rotation = rots[m.type][m.orientation]
+  local rotation = m.rots[m.type][m.orientation]
 
   local pos_works = true
   while pos_works do
@@ -150,7 +150,7 @@ local generate_shadow = function ()
     for row=1,4 do
       for col=1,4 do
         local spot = rotation[(row - 1) * 4 + col]
-        if spot == rot_ty.FILLED then
+        if spot == m.rot_ty.FILLED then
           local uni_x = m.x + col
           local uni_y = sy + row
 
@@ -184,7 +184,7 @@ local generate_shadow = function ()
   -- draw shadow pieces onto playfield
   for row=1,4 do
     for col=1,4 do
-      if rots[m.type][m.orientation][(row - 1) * 4 + col] == rot_ty.FILLED then
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == m.rot_ty.FILLED then
         board.pf[row + sy][col + m.x] = board.ty.SHADOW
       end
     end
@@ -207,7 +207,7 @@ m.update_playfield = function ()
   -- replace with "updated" active blocks
   for row=1,4 do
     for col=1,4 do
-      if rots[m.type][m.orientation][(row - 1) * 4 + col] == rot_ty.FILLED then
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == m.rot_ty.FILLED then
         board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
       end
     end
@@ -257,61 +257,61 @@ local get_kick = function (type, s_ori, e_ori)
   local is_rotation_90 = math.abs((e_ori - 1) - (s_ori - 1)) == 1 or math.abs((e_ori - 1) -  (s_ori - 1)) == 3
   if is_rotation_90 then
     if type ~= ty.I then
-      if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+      if s_ori == m.ori.U and e_ori == m.ori.R then -- 0>>1
         return kicks_jlstz[1]
-      elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+      elseif s_ori == m.ori.R and e_ori == m.ori.U then -- 1>>0
       return kicks_jlstz[2]
-      elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+      elseif s_ori == m.ori.R and e_ori == m.ori.D then -- 1>>2
         return kicks_jlstz[3]
-      elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+      elseif s_ori == m.ori.D and e_ori == m.ori.R then -- 2>>1
         return kicks_jlstz[4]
-      elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+      elseif s_ori == m.ori.D and e_ori == m.ori.L then -- 2>>3
         return kicks_jlstz[5]
-      elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+      elseif s_ori == m.ori.L and e_ori == m.ori.D then -- 3>>2
         return kicks_jlstz[6]
-      elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+      elseif s_ori == m.ori.L and e_ori == m.ori.U then -- 3>>0
         return kicks_jlstz[7]
-      elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+      elseif s_ori == m.ori.U and e_ori == m.ori.L then -- 0>>3
         return kicks_jlstz[8]
       end
     else
-      if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+      if s_ori == m.ori.U and e_ori == m.ori.R then -- 0>>1
         return kicks_i[1]
-      elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+      elseif s_ori == m.ori.R and e_ori == m.ori.U then -- 1>>0
         return kicks_i[2]
-      elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+      elseif s_ori == m.ori.R and e_ori == m.ori.D then -- 1>>2
         return kicks_i[3]
-      elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+      elseif s_ori == m.ori.D and e_ori == m.ori.R then -- 2>>1
         return kicks_i[4]
-      elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+      elseif s_ori == m.ori.D and e_ori == m.ori.L then -- 2>>3
         return kicks_i[5]
-      elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+      elseif s_ori == m.ori.L and e_ori == m.ori.D then -- 3>>2
         return kicks_i[6]
-      elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+      elseif s_ori == m.ori.L and e_ori == m.ori.U then -- 3>>0
         return kicks_i[7]
-      elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+      elseif s_ori == m.ori.U and e_ori == m.ori.L then -- 0>>3
         return kicks_i[8]
       end
     end
   else
     if type ~= ty.I then
-      if s_ori == ori.U and e_ori == ori.D then -- 0>>2
+      if s_ori == m.ori.U and e_ori == m.ori.D then -- 0>>2
         return kicks180_jlstz[1]
-      elseif s_ori == ori.R and e_ori == ori.L then -- 1>>3
+      elseif s_ori == m.ori.R and e_ori == m.ori.L then -- 1>>3
       return kicks180_jlstz[2]
-      elseif s_ori == ori.D and e_ori == ori.U then -- 2>>0
+      elseif s_ori == m.ori.D and e_ori == m.ori.U then -- 2>>0
         return kicks180_jlstz[3]
-      elseif s_ori == ori.L and e_ori == ori.R then -- 3>>1
+      elseif s_ori == m.ori.L and e_ori == m.ori.R then -- 3>>1
         return kicks180_jlstz[4]
       end
     else
-      if s_ori == ori.U and e_ori == ori.D then -- 0>>2
+      if s_ori == m.ori.U and e_ori == m.ori.D then -- 0>>2
         return kicks180_i[1]
-      elseif s_ori == ori.R and e_ori == ori.L then -- 1>>3
+      elseif s_ori == m.ori.R and e_ori == m.ori.L then -- 1>>3
       return kicks180_i[2]
-      elseif s_ori == ori.D and e_ori == ori.U then -- 2>>0
+      elseif s_ori == m.ori.D and e_ori == m.ori.U then -- 2>>0
         return kicks180_i[3]
-      elseif s_ori == ori.L and e_ori == ori.R then -- 3>>1
+      elseif s_ori == m.ori.L and e_ori == m.ori.R then -- 3>>1
         return kicks180_i[4]
       end
     end
@@ -322,7 +322,7 @@ end
 local lock = function ()
   for row=1,4 do
     for col=1,4 do
-      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
         board.pf[row + m.y][col + m.x] = board.ty.FILLED
       end
     end
@@ -343,6 +343,10 @@ m.peek_bag = function (n)
 end
 
 m.hold = function()
+  if not board.active then
+    return
+  end
+
   if holdable then
     if m.hold_type == 0 then
       m.hold_type = m.type
@@ -359,7 +363,7 @@ m.hold = function()
 
       m.x = center_x
       m.y = 0
-      m.orientation = ori.U
+      m.orientation = m.ori.U
     end
     holdable = false
   end
@@ -378,7 +382,7 @@ m.spawn = function ()
   m.x = center_x
   m.y = 0
   m.type = type
-  m.orientation = ori.U
+  m.orientation = m.ori.U
 
   m.update_playfield()
 end
