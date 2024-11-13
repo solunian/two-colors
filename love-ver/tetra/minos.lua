@@ -198,41 +198,77 @@ local peek_bag = function (n)
 end
 
 local get_kick = function (type, s_ori, e_ori)
-  if type ~= ty.I then
-    if s_ori == ori.U and e_ori == ori.R then -- 0>>1
-      return kicks_jlstz[1]
-    elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
-     return kicks_jlstz[2]
-    elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
-      return kicks_jlstz[3]
-    elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
-      return kicks_jlstz[4]
-    elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
-      return kicks_jlstz[5]
-    elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
-      return kicks_jlstz[6]
-    elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
-      return kicks_jlstz[7]
-    elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
-      return kicks_jlstz[8]
+  local is_rotation_90 = math.abs((e_ori - 1) - (s_ori - 1)) == 1 or math.abs((e_ori - 1) -  (s_ori - 1)) == 3
+  if is_rotation_90 then
+    if type ~= ty.I then
+      if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+        return kicks_jlstz[1]
+      elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+      return kicks_jlstz[2]
+      elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+        return kicks_jlstz[3]
+      elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+        return kicks_jlstz[4]
+      elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+        return kicks_jlstz[5]
+      elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+        return kicks_jlstz[6]
+      elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+        return kicks_jlstz[7]
+      elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+        return kicks_jlstz[8]
+      end
+    else
+      if s_ori == ori.U and e_ori == ori.R then -- 0>>1
+        return kicks_i[1]
+      elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
+      return kicks_i[2]
+      elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
+        return kicks_i[3]
+      elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
+        return kicks_i[4]
+      elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
+        return kicks_i[5]
+      elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
+        return kicks_i[6]
+      elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
+        return kicks_i[7]
+      elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
+        return kicks_i[8]
+      end
     end
   else
-    if s_ori == ori.U and e_ori == ori.R then -- 0>>1
-      return kicks_i[1]
-    elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
-     return kicks_i[2]
-    elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
-      return kicks_i[3]
-    elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
-      return kicks_i[4]
-    elseif s_ori == ori.D and e_ori == ori.L then -- 2>>3
-      return kicks_i[5]
-    elseif s_ori == ori.L and e_ori == ori.D then -- 3>>2
-      return kicks_i[6]
-    elseif s_ori == ori.L and e_ori == ori.U then -- 3>>0
-      return kicks_i[7]
-    elseif s_ori == ori.U and e_ori == ori.L then -- 0>>3
-      return kicks_i[8]
+    if type ~= ty.I then
+      if s_ori == ori.U and e_ori == ori.D then -- 0>>2
+        return kicks180_jlstz[1]
+      elseif s_ori == ori.R and e_ori == ori.L then -- 1>>3
+      return kicks180_jlstz[2]
+      elseif s_ori == ori.D and e_ori == ori.U then -- 2>>0
+        return kicks180_jlstz[3]
+      elseif s_ori == ori.L and e_ori == ori.R then -- 3>>1
+        return kicks180_jlstz[4]
+      end
+    else
+      if s_ori == ori.U and e_ori == ori.D then -- 0>>2
+        return kicks180_i[1]
+      elseif s_ori == ori.R and e_ori == ori.L then -- 1>>3
+      return kicks180_i[2]
+      elseif s_ori == ori.D and e_ori == ori.U then -- 2>>0
+        return kicks180_i[3]
+      elseif s_ori == ori.L and e_ori == ori.R then -- 3>>1
+        return kicks180_i[4]
+      end
+    end
+  end
+end
+
+-- direct board pf manipulation
+local lock = function ()
+  for row=1,4 do
+    for col=1,4 do
+      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+        board.pf[row + m.y][col + m.x] = board.ty.FILLED
+      end
     end
   end
 end
@@ -258,29 +294,26 @@ m.spawn = function ()
   update_playfield()
 end
 
--- direct board pf manipulation
-m.lock = function ()
-  for row=1,4 do
-    for col=1,4 do
-      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
-        board.pf[row + m.y][col + m.x] = board.ty.FILLED
-      end
-    end
-  end
-
-  board.active = false
-end
-
 m.lateral_move = function (dx)
   if not board.active then
     return
   end
 
-  m.x = m.x + dx
-  -- test pos
-  if not does_pos_work() then
-    m.x = m.x - dx
+  -- |dx| greater than 1 should push to the very farthest until it is obstructed
+  if math.abs(dx) > 0 then
+    while math.abs(dx) ~= 0 do
+      local dx_dir = dx / math.abs(dx) -- +-1 matches the sign of dx
+      m.x = m.x + dx_dir
+      dx = dx - dx_dir
+
+      -- test pos
+      if not does_pos_work() then
+        m.x = m.x - dx_dir
+        break
+      end
+    end
   end
+
   update_playfield()
 end
 
@@ -306,7 +339,7 @@ m.hard_drop = function ()
 
   update_playfield()
 
-  m.lock()
+  lock()
 end
 
 m.rotate = function (s_ori, e_ori)
@@ -315,33 +348,20 @@ m.rotate = function (s_ori, e_ori)
   end
 
   local old_x, old_y = m.x, m.y
-  local is_rotation_90 = math.abs((e_ori % 4) - (s_ori % 4)) == 0
 
   m.orientation = e_ori
 
   if not does_pos_work() then -- test kicks!
-    if is_rotation_90 then -- test 90 kicks
-      local kick = get_kick(m.type, s_ori, e_ori)
+    local kick = get_kick(m.type, s_ori, e_ori)
 
-      for k in kick do
-        m.x, m.y = m.x + k[1], m.y + k[2]
-        if not does_pos_work() then
-          m.x, m.y = m.x - k[1], m.y - k[2]
-        else
-          break
-        end
+    for i=1,#kick do
+      -- print("test", kick[i][1], kick[i][2]) -- debug kicks stuff
+      m.x, m.y = m.x + kick[i][1], m.y + kick[i][2]
+      if not does_pos_work() then
+        m.x, m.y = m.x - kick[i][1], m.y - kick[i][2]
+      else
+        break
       end
-      -- if m.type ~= m.ty.I then
-      --   -- test position, then kicks_i
-      -- elseif m.type ~= m.ty.O then
-      --   -- test position, then kicks_jlstz
-      -- end
-    else -- test 180 kicks
-      -- if m.type ~= m.ty.I then
-      --   -- test position, then kicks_i
-      -- elseif m.type ~= m.ty.O then
-      --   -- test position, then kicks_jlstz
-      -- end
     end
   end
 

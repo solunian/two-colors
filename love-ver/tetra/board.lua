@@ -19,6 +19,7 @@ b.active = false
 
 -- reset and init playfield
 b.reinit_playfield = function ()
+  b.pf = {}
   for _=1,b.sh+b.h do
     local curr = {}
     for _=1,b.w do
@@ -34,6 +35,43 @@ b.print_playfield = function (w, h)
       io.write(b.pf[i][j] .. " ")
     end
     io.write("\n")
+  end
+end
+
+local is_row_full = function (row)
+  for i=1,b.w do
+    if b.pf[row][i] ~= b.ty.FILLED then
+      return false
+    end
+  end
+  return true
+end
+
+b.clear_rows = function ()
+  for checkrow=b.sh+b.h, b.sh - 1, -1 do
+    if is_row_full(checkrow) then
+      -- push all rows down
+      for row=checkrow, b.sh - 1, -1 do
+        -- clear current row
+        for i=1,b.w do
+          if b.pf[row][i] ~= b.ty.ACTIVE then
+            b.pf[row][i] = b.ty.EMPTY
+          end
+        end
+        -- push down all filled pieces
+        for i=1,b.w do
+          if b.pf[row - 1][i] == b.ty.FILLED then
+            b.pf[row][i] = b.pf[row - 1][i]
+          end
+        end
+        -- clean next row
+        for i=1,b.w do
+          if b.pf[row - 1][i] == b.ty.FILLED then
+            b.pf[row - 1][i] = b.ty.EMPTY
+          end
+        end
+      end
+    end
   end
 end
 
