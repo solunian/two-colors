@@ -59,7 +59,8 @@ local rots = {
   }
 }
 
--- test basic rotations, then 4 kicks (x,y offsets)
+-- IMPORTANT: Y OFFSET IS NEGATIVE, MEANING UPWARDS! THESE ARE TAKEN FROM TETRIS WIKI FOR SRS!!!
+-- test basic rotations, then 4 kicks (x,-y offsets)
 local kicks_jlstz = {
   {{-1, 0}, {-1, 1}, { 0,-2}, {-1,-2}}, -- 0>>1
   {{ 1, 0}, { 1,-1}, { 0, 2}, { 1, 2}}, -- 1>>0
@@ -103,7 +104,8 @@ m.x = 0
 m.y = 0
 m.type = ty.I
 m.orientation = ori.U
-
+m.hold_type = 0
+local holdable = true
 
 -- helper / local (private) functions
 
@@ -215,7 +217,7 @@ end
 local bag = {}
 
 local bag_append_random_seven = function (n) -- n = # of bags to be appended
-  math.randomseed(os.time())
+  math.randomseed(os.time() * math.random())
 
   local new_bag = {}
   for _=1,n do
@@ -237,7 +239,7 @@ local bag_append_random_seven = function (n) -- n = # of bags to be appended
   -- end
 
   -- shuffle and insertion at the same time
-  for i=1,7*n-1 do
+  for i=1,7*n do
     local pick = math.random(i, 7 * n)
     table.insert(bag, new_bag[pick])
     new_bag[pick] = new_bag[i]
@@ -246,12 +248,9 @@ end
 
 local bag_pop = function ()
   if #bag < 7 then
-    bag_append_random_seven(3)
+    bag_append_random_seven(1)
   end
   return table.remove(bag, 1)
-end
-
-local peek_bag = function (n)
 end
 
 local get_kick = function (type, s_ori, e_ori)
@@ -279,7 +278,7 @@ local get_kick = function (type, s_ori, e_ori)
       if s_ori == ori.U and e_ori == ori.R then -- 0>>1
         return kicks_i[1]
       elseif s_ori == ori.R and e_ori == ori.U then -- 1>>0
-      return kicks_i[2]
+        return kicks_i[2]
       elseif s_ori == ori.R and e_ori == ori.D then -- 1>>2
         return kicks_i[3]
       elseif s_ori == ori.D and e_ori == ori.R then -- 2>>1
@@ -332,6 +331,39 @@ end
 
 
 -- instance functions, uses instance variables (also board variables)
+
+m.peek_bag = function (n)
+  local peek = {}
+  if #bag >= n then
+    for i=1,n do
+      table.insert(peek, bag[i])
+    end
+  end
+  return peek
+end
+
+m.hold = function()
+  if holdable then
+    if m.hold_type == 0 then
+      m.hold_type = m.type
+      m.spawn()
+    else
+      m.type, m.hold_type = m.hold_type, m.type
+
+      local center_x = 0
+      if board.w % 2 ~= 0 then
+        center_x = math.floor(board.w / 2) - 1 -- odd offset -1 from middle
+      else
+        center_x = math.floor(board.w / 2) - 2 -- even offset -2 from the middle
+      end
+
+      m.x = center_x
+      m.y = 0
+      m.orientation = ori.U
+    end
+    holdable = false
+  end
+end
 
 m.spawn = function ()
   local type = bag_pop()
@@ -397,6 +429,9 @@ m.hard_drop = function ()
   m.update_playfield()
 
   lock()
+
+  -- hard drop makes hold work again
+  holdable = true
 end
 
 m.rotate = function (s_ori, e_ori)
@@ -413,9 +448,9 @@ m.rotate = function (s_ori, e_ori)
 
     for i=1,#kick do
       -- print("test", kick[i][1], kick[i][2]) -- debug kicks stuff
-      m.x, m.y = m.x + kick[i][1], m.y + kick[i][2]
+      m.x, m.y = m.x + kick[i][1], m.y - kick[i][2] -- NEGATIVE OFFSET FOR Y
       if not does_pos_work() then
-        m.x, m.y = m.x - kick[i][1], m.y - kick[i][2]
+        m.x, m.y = m.x - kick[i][1], m.y + kick[i][2] -- POSITIVE PUTBACK OFFSET FOR Y
       else
         break
       end
@@ -431,6 +466,9 @@ m.rotate = function (s_ori, e_ori)
 end
 
 m.reinit = function ()
+  m.hold_type = 0
+  holdable = true
+  bag = {}
   bag_append_random_seven(1) -- single shuffled 7-bag appended by default
 end
 

@@ -4,6 +4,9 @@ local math = require("math")
 local board = require("tetra.board")
 local minos = require("tetra.minos")
 
+local gravity_rate = 1 -- seconds until gravity drop
+
+local gravity_duration = 0
 
 local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
 local DAS = 0.017 * 8 -- delayed auto shift (seconds)
@@ -19,7 +22,9 @@ local is_dcd_done = true -- defaults to no dcd
 local INPUTS = { NIL = 0, R = 1, L = 2 }
 local last_input = INPUTS.NIL
 
-local reset_arr_das_dcd_durations = function ()
+local reset_durations = function ()
+  gravity_duration = 0
+
   arr_duration = 0
   das_duration = 0
   last_input = INPUTS.NIL
@@ -35,7 +40,7 @@ local start_dcd = function ()
 end
 
 local restart_tetra = function()
-  reset_arr_das_dcd_durations()
+  reset_durations()
 
   board.reinit_playfield()
   minos.reinit()
@@ -83,7 +88,7 @@ function love.update(dt)
   if (not love.keyboard.isDown("right") and not love.keyboard.isDown("left") and last_input ~= INPUTS.NIL) or
   (love.keyboard.isDown("left") and not love.keyboard.isDown("right") and last_input == INPUTS.R) or
   (not love.keyboard.isDown("left") and love.keyboard.isDown("right") and last_input == INPUTS.L) then
-    reset_arr_das_dcd_durations()
+    reset_durations()
   end
 
   -- start movement, non-repeat
@@ -127,16 +132,16 @@ function love.update(dt)
   end
 
   -- gravity???
-  -- delta_time = delta_time + dt
-  -- if delta_time >= gravity_time then
-  --   minos.drop()
-  --   delta_time = 0
-  -- end
+  gravity_duration = gravity_duration + dt
+  if gravity_duration >= gravity_rate then
+    minos.drop()
+    gravity_duration = 0
+  end
 end
 
 function love.keypressed(key, scancode, isrepeat)
 
-  -- game inputs
+  -- game setting inputs
 
   if key == "r" then -- reset / start game
     restart_tetra()
@@ -146,10 +151,14 @@ function love.keypressed(key, scancode, isrepeat)
     board.active = not board.active
   end
 
-  -- movement inputs!
+  -- movement / playing inputs!
+
+  if key == "c" then
+    minos.hold()
+  end
 
   -- trigger dcd, only hard drop and rotations??
-  if key == "space" or key == "z" or key == "x" or key == "up" or key == "a" then
+  if key == "space" or key == "x" or key == "up" or key == "z" or key == "a" then
     start_dcd()
   end
 
