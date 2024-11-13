@@ -191,7 +191,12 @@ local generate_shadow = function ()
   end
 end
 
+-- called in all movement and in every update of main game loop
 m.update_playfield = function ()
+  if not board.active then
+    return
+  end
+  
   -- clear old active blocks and shadow
   for row=1,board.sh+board.h do
     for col=1,board.w do
@@ -322,7 +327,7 @@ end
 local lock = function ()
   for row=1,4 do
     for col=1,4 do
-      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == m.rot_ty.FILLED then
         board.pf[row + m.y][col + m.x] = board.ty.FILLED
       end
     end
@@ -367,6 +372,8 @@ m.hold = function()
     end
     holdable = false
   end
+
+  m.update_playfield()
 end
 
 m.spawn = function ()
@@ -434,8 +441,14 @@ m.hard_drop = function ()
 
   lock()
 
+  board.clear_rows()
+
   -- hard drop makes hold work again
   holdable = true
+
+  if not board.game_over() then
+    m.spawn()
+  end
 end
 
 m.rotate = function (s_ori, e_ori)

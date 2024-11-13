@@ -17,6 +17,16 @@ b.ty = { EMPTY = 1, FILLED = 2, ACTIVE = 3, SHADOW = 4 } -- block types
 b.pf = {}
 b.active = false
 
+-- helper functions
+local is_row_full = function (row)
+  for i=1,b.w do
+    if b.pf[row][i] ~= b.ty.FILLED then
+      return false
+    end
+  end
+  return true
+end
+
 -- reset and init playfield
 b.reinit_playfield = function ()
   b.pf = {}
@@ -29,49 +39,64 @@ b.reinit_playfield = function ()
   end
 end
 
-b.print_playfield = function (w, h)
-  for i=1,h do
-    for j=1,w do
+-- debugging
+b.print_playfield = function ()
+  for i=1,b.sh+b.h do
+    for j=1,b.w do
       io.write(b.pf[i][j] .. " ")
     end
     io.write("\n")
   end
 end
 
-local is_row_full = function (row)
-  for i=1,b.w do
-    if b.pf[row][i] ~= b.ty.FILLED then
-      return false
+-- for game over?
+b.freeze_active = function ()
+  for i=1,b.sh+b.h do
+    for j=1,b.w do
+      if b.pf[i][j] == b.ty.ACTIVE then
+        b.pf[i][j] = b.ty.FILLED
+      end
     end
   end
-  return true
+end
+
+-- check if row 2 of spawn height rows has filled
+b.game_over = function ()
+  for i=1,b.w do
+    if b.pf[1][i] == b.ty.FILLED or b.pf[2][i] == b.ty.FILLED then
+      return true
+    end
+  end
+
+  return false
 end
 
 b.clear_rows = function ()
-  for checkrow=b.sh+b.h, b.sh - 1, -1 do
+  -- for loop variable cannot be changed in loop!
+  local checkrow = b.sh + b.h
+  while checkrow >= 1 do
     if is_row_full(checkrow) then
-      -- push all rows down
-      for row=checkrow, b.sh - 1, -1 do
-        -- clear current row
-        for i=1,b.w do
-          if b.pf[row][i] ~= b.ty.ACTIVE then
-            b.pf[row][i] = b.ty.EMPTY
-          end
+      -- clear full row
+      for i=1,b.w do
+        if b.pf[checkrow][i] ~= b.ty.ACTIVE then
+          b.pf[checkrow][i] = b.ty.EMPTY
         end
-        -- push down all filled pieces
+      end
+
+      -- move everything down
+      for moverow = checkrow - 1, 1, -1 do
         for i=1,b.w do
-          if b.pf[row - 1][i] == b.ty.FILLED then
-            b.pf[row][i] = b.pf[row - 1][i]
-          end
-        end
-        -- clean next row
-        for i=1,b.w do
-          if b.pf[row - 1][i] == b.ty.FILLED then
-            b.pf[row - 1][i] = b.ty.EMPTY
+          if b.pf[moverow][i] == b.ty.FILLED then
+            b.pf[moverow + 1][i] = b.pf[moverow][i] -- move row down
+            b.pf[moverow][i] = b.ty.EMPTY -- clear old stuff
           end
         end
       end
+      -- if cleared one, check the row shifted down
+      checkrow = checkrow + 1
     end
+    -- decrement, pushing the check row up the playfield
+    checkrow = checkrow - 1
   end
 end
 

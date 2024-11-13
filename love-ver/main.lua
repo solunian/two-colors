@@ -59,7 +59,12 @@ function love.load()
 end
 
 function love.update(dt)
-  board.clear_rows()
+  if board.game_over() then
+    board.active = false
+    board.freeze_active()
+    -- love.event.quit(0)
+  end
+
   minos.update_playfield()
 
   -- repeated movement
@@ -160,12 +165,12 @@ function love.keypressed(key, scancode, isrepeat)
 
   -- trigger dcd, only hard drop and rotations??
   if key == "space" or key == "x" or key == "up" or key == "z" or key == "a" then
+    reset_durations()
     start_dcd()
   end
 
   if key == "space" then -- hard drop / spawn new piece
     minos.hard_drop()
-    minos.spawn()
   end
 
   -- rotations
