@@ -5,9 +5,9 @@ local board = require("tetra.board")
 local minos = require("tetra.minos")
 
 
-local ARR = 0.017 -- automatic repeat rate (seconds)
-local DAS = 0.017 * 4 -- delayed auto shift (seconds)
-local DCD = 0.017 * 10 -- DAS cut delay (seconds)
+local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
+local DAS = 0.017 * 8 -- delayed auto shift (seconds)
+local DCD = 0.017 * 7 -- DAS cut delay (seconds)
 local SDF = 0 -- soft drop factor
 
 local arr_duration = 0
@@ -54,6 +54,7 @@ end
 
 function love.update(dt)
   board.clear_rows()
+  minos.update_playfield()
 
   -- repeated movement
   if das_duration >= DAS and is_dcd_done then -- repeated movement only when dcd is done and das was triggered
@@ -120,6 +121,7 @@ function love.update(dt)
     is_dcd_done = true
   end
 
+  -- soft drop
   if love.keyboard.isDown("down") then
     minos.drop()
   end
@@ -146,8 +148,8 @@ function love.keypressed(key, scancode, isrepeat)
 
   -- movement inputs!
 
-  -- trigger dcd, only hard drop? i don't see rotations triggering dcd
-  if key == "space" then
+  -- trigger dcd, only hard drop and rotations??
+  if key == "space" or key == "z" or key == "x" or key == "up" or key == "a" then
     start_dcd()
   end
 

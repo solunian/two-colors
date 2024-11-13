@@ -135,8 +135,62 @@ local does_pos_work = function ()
   return true
 end
 
-local update_playfield = function ()
-  -- clear old active blocks
+local generate_shadow = function ()
+  local sy = m.y
+
+  -- does_pos_work for shadow
+  local rotation = rots[m.type][m.orientation]
+
+  local pos_works = true
+  while pos_works do
+    sy = sy + 1
+    -- check if pos works
+    for row=1,4 do
+      for col=1,4 do
+        local spot = rotation[(row - 1) * 4 + col]
+        if spot == rot_ty.FILLED then
+          local uni_x = m.x + col
+          local uni_y = sy + row
+
+          -- check playfield bounds
+          if uni_x < 1 or uni_x > board.w or uni_y < 1 or uni_y > board.sh + board.h then
+            pos_works = false
+            break
+          end
+
+          -- check filled pieces
+          if board.pf[uni_y][uni_x] == board.ty.FILLED then
+            pos_works = false
+          end
+        end
+      end
+    end
+  end
+
+  -- push back after initial fail
+  sy = sy - 1
+
+  -- clear all old shadow pieces on playfield
+  for row=1,board.sh+board.h do
+    for col=1,board.w do
+      if board.pf[row][col] == board.ty.SHADOW then
+        board.pf[row][col] = board.ty.EMPTY
+      end
+    end
+  end
+
+  -- draw shadow pieces onto playfield
+  for row=1,4 do
+    for col=1,4 do
+      if rots[m.type][m.orientation][(row - 1) * 4 + col] == rot_ty.FILLED then
+        board.pf[row + sy][col + m.x] = board.ty.SHADOW
+      end
+    end
+  end
+end
+
+m.update_playfield = function ()
+  -- clear old active blocks and shadow
   for row=1,board.sh+board.h do
     for col=1,board.w do
       if board.pf[row][col] == board.ty.ACTIVE then
@@ -145,10 +199,13 @@ local update_playfield = function ()
     end
   end
 
+  -- draw on shadow before updated active blocks
+  generate_shadow()
+
   -- replace with "updated" active blocks
   for row=1,4 do
     for col=1,4 do
-      if rots[m.type][m.orientation][(row - 1) * 4 + col] == 1 then
+      if rots[m.type][m.orientation][(row - 1) * 4 + col] == rot_ty.FILLED then
         board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
       end
     end
@@ -291,7 +348,7 @@ m.spawn = function ()
   m.type = type
   m.orientation = ori.U
 
-  update_playfield()
+  m.update_playfield()
 end
 
 m.lateral_move = function (dx)
@@ -314,7 +371,7 @@ m.lateral_move = function (dx)
     end
   end
 
-  update_playfield()
+  m.update_playfield()
 end
 
 m.drop = function ()
@@ -327,7 +384,7 @@ m.drop = function ()
   if not does_pos_work() then
     m.y = m.y - 1
   end
-  update_playfield()
+  m.update_playfield()
 end
 
 m.hard_drop = function ()
@@ -337,7 +394,7 @@ m.hard_drop = function ()
   until not does_pos_work()
   m.y = m.y - 1 -- push back one pos when pos fails
 
-  update_playfield()
+  m.update_playfield()
 
   lock()
 end
@@ -370,7 +427,7 @@ m.rotate = function (s_ori, e_ori)
     m.x, m.y = old_x, old_y
   end
 
-  update_playfield()
+  m.update_playfield()
 end
 
 m.reinit = function ()

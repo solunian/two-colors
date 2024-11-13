@@ -9,7 +9,7 @@ b.ss = 25 -- square size for grid
 b.w = 10 -- width
 b.h = 20 -- height
 b.sh = 3 -- spawn height, playfield must have 3 extra spawn rows
-b.ty = { EMPTY = 1, FILLED = 2, ACTIVE = 3 } -- block types
+b.ty = { EMPTY = 1, FILLED = 2, ACTIVE = 3, SHADOW = 4 } -- block types
 
 
 -- playfield is upside down!
@@ -76,18 +76,21 @@ b.clear_rows = function ()
 end
 
 b.draw = function ()
-    -- draw current board with all the squares
-    for row=1,b.sh+b.h do
-      for col=1,b.w do
-        if b.pf[row][col] == b.ty.FILLED then
-          love.graphics.setColor(love.math.colorFromBytes(255, ((row * 10) % 255), ((col * 10) % 255)))
-          love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
-        elseif b.pf[row][col] == b.ty.ACTIVE then
-          love.graphics.setColor(0, 1, 0, 1);
-          love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
-        end
+  -- draw current board with all the squares
+  for row=1,b.sh+b.h do
+    for col=1,b.w do
+      if b.pf[row][col] == b.ty.FILLED then
+        love.graphics.setColor(love.math.colorFromBytes(255, ((row * 10) % 255), ((col * 10) % 255)))
+        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
+      elseif b.pf[row][col] == b.ty.ACTIVE then
+        love.graphics.setColor(0, 1, 0, 1);
+        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
+      elseif b.pf[row][col] == b.ty.SHADOW then
+        love.graphics.setColor(0.4, 0.4, 0.4, 1);
+        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
       end
     end
+  end
 
   -- draw grid lines
   for row=b.sh,b.sh+b.h do -- extra one for bottom border
