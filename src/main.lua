@@ -54,6 +54,8 @@ end
 
 function love.load()
   love.window.setTitle("two colors")
+  love.window.setMode(1280, 720)
+  -- love.window.setMode(1280, 720, { fullscreen = true })
 
   restart_tetra()
 end

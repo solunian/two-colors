@@ -1,42 +1,33 @@
 # two colors :red_circle: :large_blue_circle:
 
-A game collection that uses only two main colors. Designed to help people correct "lazy eye" (amblyopia) by using those red-blue 3D glasses.
+A game collection that uses only two main colors. 
+Designed to help people correct "lazy eye" (amblyopia) by using those red-blue tinted glasses (like for 3D movies).
 
-Disclaimer: This is a not a legitimate medical treatment; use at your own risk. Don't sue me, please. But seriously, are you actually using this?
+Disclaimer: This is a not a legitimate medical treatment. Don't sue me, please. But seriously, are you actually using this?
 
-## Games
+## Games Completed
 
-- [ ] tetris clone: [reference](https://codeincomplete.com/articles/javascript-tetris/)
-- [ ] getting chased
+- [ ] tetra
 - [ ] tanks from wii play: wasd to move, mouse/click to fire bullets, space bar for dropping a mine
-- [ ] shooty skies clone?
+- [ ] getting chased
 
 ## Dev Notes
 
-- RAYLIB IS COMPLICATED TO PORT, SO I THINK IM JUST GONNA MAKE TETRIS IN RAYLIB AND AN ACTUAL GAME IN GODOT CUZ I LIKE TO LIVE SANELY
-- this probably doesn't work
-- using raylib, but idk how to distribute executables properly
-- i bet i'll have a bunch of lovely memory leaks...
-- trying to gain the respect of webdev haters and "low-level" lovers
-- Makefile use "\t" indentation, but all code should use two spaces instead
+### Build
 
-## getting raylib working
+Refer to the love2d docs for game distribution [here](https://love2d.org/wiki/Game_Distribution)!
 
-### linux (i use ubuntu)
+### Color
 
-- to add headers and lib archive for the compiler, headers must be located at `/usr/local/include` and lib should be at `/usr/local/lib`
-- use the raylib wiki because it is a little messy
-- reference the Makefile for running
+Look through only one tinted lens of glasses, and adjust the color until it turns near black.
+Looking through a pure blue filter would only show blue light, and same with everything else.
 
-### windows
+Match the opposite color into the black background.
 
-- using minGW-w64 from here -> https://www.mingw-w64.org/downloads/#mingw-builds, https://winlibs.com/
-  - unzip and then place mingw64 folder somewhere safe like -> `C:\`
-  - then add mingw64\bin to PATH with environment variables
-  - i copied `mingw32-make` in bin, then renamed the copy to `make` as a "fake alias"
-- download the most recent stable release of raylib -> https://github.com/raysan5/raylib/releases
-  - should be either win32/win64 and mingw-w64 version
-  - then take the `lib` and `include` folders and move it into this project
-- make a folder called build (`make wininit`)
-- then by running `make win` everything should run
+### Tetra
 
+Recreating the famous stacking game is more complex than one might think.
+The weird things is coding rotation, srs kicks, and movement things like
+ARR, DAS, and DCD.
+
+More notes [here](https://github.com/solunian/two-colors/tree/main/src/tetra/README.md).
