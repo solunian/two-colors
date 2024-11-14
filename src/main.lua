@@ -5,14 +5,16 @@ local board = require("tetra.board")
 local minos = require("tetra.minos")
 local display = require("tetra.display")
 
-local gravity_rate = 1 -- seconds until gravity drop
+local gravity_rate = 0.75 -- seconds until gravity drop, should not be 0 which is instant drop
 
-local gravity_duration = 0
-
+-- custom features
 local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
 local DAS = 0.017 * 8 -- delayed auto shift (seconds)
 local DCD = 0.017 * 7 -- DAS cut delay (seconds)
-local SDF = 0 -- soft drop factor
+local SDF = 20 -- soft drop factor, increments the gravity_duration by sdf * 4 to trigger gravity faster
+
+-- tracking for time
+local gravity_duration = 0
 
 local arr_duration = 0
 local das_duration = 0
@@ -20,9 +22,14 @@ local is_das_started = false
 local dcd_duration = DCD -- defaults to no dcd
 local is_dcd_done = true -- defaults to no dcd
 
+local dt_factor = 1 -- for soft drop
+
+-- inputs
 local INPUTS = { NIL = 0, R = 1, L = 2 }
 local last_input = INPUTS.NIL
 
+
+-- helper functions
 local reset_durations = function ()
   gravity_duration = 0
 
@@ -135,14 +142,15 @@ function love.update(dt)
   end
 
   -- soft drop
+  dt_factor = 1
   if love.keyboard.isDown("down") then
-    minos.drop()
+    dt_factor = SDF * 4 -- times 4 to approximate tetrio's sdf
   end
 
   -- gravity???
-  gravity_duration = gravity_duration + dt
+  gravity_duration = gravity_duration + dt_factor * dt
   if gravity_duration >= gravity_rate then
-    minos.drop()
+    minos.drop(math.floor(gravity_duration / (gravity_rate + 1e-8))) -- in case of gravity rate of 0, sanity check to avoid crash
     gravity_duration = 0
   end
 end

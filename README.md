@@ -30,4 +30,6 @@ Recreating the famous stacking game is more complex than one might think.
 The weird things is coding rotation, srs kicks, and movement things like
 ARR, DAS, and DCD.
 
+Heavily referenced tetrio and other tables for specific details.
+
 More notes [here](https://github.com/solunian/two-colors/tree/main/src/tetra/README.md).

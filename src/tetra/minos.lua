@@ -417,16 +417,23 @@ m.lateral_move = function (dx)
   m.update_playfield()
 end
 
-m.drop = function ()
+-- dy must be greater than 0
+m.drop = function (dy)
   if not board.active then
     return
   end
 
-  m.y = m.y + 1
-  -- test pos
-  if not does_pos_work() then
-    m.y = m.y - 1
+  while dy > 0 do
+    m.y = m.y + 1
+    -- test pos
+    if not does_pos_work() then
+      m.y = m.y - 1
+      break
+    end
+
+    dy = dy - 1
   end
+  
   m.update_playfield()
 end
 
