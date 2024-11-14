@@ -3,6 +3,11 @@ local table = require("table")
 
 local b = {}
 
+-- playfield is top to bottom, as a 2D table visual representation
+-- (3, 3) is top left, (23,23) is bottom right, rows 1-3 are spawn rows
+b.pf = {}
+b.active = false
+
 -- constant values --
 
 b.ss = 25 -- square size for grid
@@ -12,12 +17,8 @@ b.sh = 3 -- spawn height, playfield must have 3 extra spawn rows
 b.ty = { EMPTY = 1, FILLED = 2, ACTIVE = 3, SHADOW = 4 } -- block types
 
 
--- playfield is upside down!
--- (3, 3) is top left, (23,23) is bottom right, rows 1-3 are spawn rows
-b.pf = {}
-b.active = false
-
 -- helper functions
+
 local is_row_full = function (row)
   for i=1,b.w do
     if b.pf[row][i] ~= b.ty.FILLED then
@@ -26,6 +27,10 @@ local is_row_full = function (row)
   end
   return true
 end
+
+--------------------------------------------------------
+-- table functions, can be called outside in the game --
+--------------------------------------------------------
 
 -- reset and init playfield
 b.reinit_playfield = function ()
@@ -61,7 +66,7 @@ b.freeze_active = function ()
 end
 
 -- check if row 2 of spawn height rows has filled
-b.game_over = function ()
+b.is_game_over = function ()
   for i=1,b.w do
     if b.pf[1][i] == b.ty.FILLED or b.pf[2][i] == b.ty.FILLED then
       return true
@@ -71,9 +76,10 @@ b.game_over = function ()
   return false
 end
 
+-- called only at hard_drop
 b.clear_rows = function ()
-  -- for loop variable cannot be changed in loop!
   local checkrow = b.sh + b.h
+  -- for loop variable cannot be changed in loop!
   while checkrow >= 1 do
     if is_row_full(checkrow) then
       -- clear full row
@@ -105,13 +111,13 @@ b.draw = function ()
   for row=1,b.sh+b.h do
     for col=1,b.w do
       if b.pf[row][col] == b.ty.FILLED then
-        love.graphics.setColor(love.math.colorFromBytes(255, ((row * 10) % 255), ((col * 10) % 255)))
+        love.graphics.setColor(1, 0, 0, 1)
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.ACTIVE then
-        love.graphics.setColor(0, 1, 0, 1);
+        love.graphics.setColor(0, 0, 1, 1);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.SHADOW then
-        love.graphics.setColor(0.4, 0.4, 0.4, 1);
+        love.graphics.setColor(0, 0, 1, 0.5);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
       end
     end

@@ -8,12 +8,12 @@ local m = {}
 
 -- mino types
 local ty = { I = 1, J = 2, L = 3, O = 4, S = 5, T = 6, Z = 7 }
+
 -- mino orientations
 m.ori = { U = 1, R = 2, D = 3, L = 4 }
 
-m.rot_ty = { EMPTY = 0, FILLED = 1 }
-
 -- all clockwise rotations. 4x4 with only I spanning 4 technically
+m.rot_ty = { EMPTY = 0, FILLED = 1 }
 m.rots = {
   { -- I
     {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -98,14 +98,17 @@ local kicks180_i = {
 };
 
 
--- instance variables for active piece
+-- variables for active piece
 -- x,y position is of top left corner of 4x4, can be negative!
 m.x = 0
 m.y = 0
 m.type = ty.I
 m.orientation = m.ori.U
 m.hold_type = 0
+
+-- other variables
 local holdable = true
+local bag = {}
 
 -- helper / local (private) functions
 
@@ -169,7 +172,7 @@ local generate_shadow = function ()
     end
   end
 
-  -- push back after initial fail
+  -- push back after last fall fails
   sy = sy - 1
 
   -- clear all old shadow pieces on playfield
@@ -191,38 +194,8 @@ local generate_shadow = function ()
   end
 end
 
--- called in all movement and in every update of main game loop
-m.update_playfield = function ()
-  if not board.active then
-    return
-  end
-  
-  -- clear old active blocks and shadow
-  for row=1,board.sh+board.h do
-    for col=1,board.w do
-      if board.pf[row][col] == board.ty.ACTIVE then
-        board.pf[row][col] = board.ty.EMPTY
-      end
-    end
-  end
-
-  -- draw on shadow before updated active blocks
-  generate_shadow()
-
-  -- replace with "updated" active blocks
-  for row=1,4 do
-    for col=1,4 do
-      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == m.rot_ty.FILLED then
-        board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
-      end
-    end
-  end
-end
-
-local bag = {}
-
 local bag_append_random_seven = function (n) -- n = # of bags to be appended
-  math.randomseed(os.time() * math.random())
+  math.randomseed(os.time() * math.random()) -- strange randoming that just works
 
   local new_bag = {}
   for _=1,n do
@@ -334,8 +307,16 @@ local lock = function ()
   end
 end
 
+--------------------------------------------------------
+-- table functions, can be called outside in the game --
+--------------------------------------------------------
 
--- instance functions, uses instance variables (also board variables)
+m.reinit = function ()
+  m.hold_type = 0
+  holdable = true
+  bag = {}
+  bag_append_random_seven(1) -- single shuffled 7-bag appended by default
+end
 
 m.is_on_ground = function ()
   m.y = m.y + 1
@@ -347,6 +328,7 @@ m.is_on_ground = function ()
   return true
 end
 
+-- to preview pieces
 m.peek_bag = function (n)
   local peek = {}
   if #bag >= n then
@@ -355,6 +337,60 @@ m.peek_bag = function (n)
     end
   end
   return peek
+end
+
+--------------------------------------------------------------
+-- functions below will return early if board not active!!! --
+--------------------------------------------------------------
+
+-- called in spawn, hold, all movement, and in every update of main game loop
+m.update_playfield = function ()
+  if not board.active then
+    return
+  end
+
+  -- clear old active blocks and shadow
+  for row=1,board.sh+board.h do
+    for col=1,board.w do
+      if board.pf[row][col] == board.ty.ACTIVE then
+        board.pf[row][col] = board.ty.EMPTY
+      end
+    end
+  end
+
+  -- draw on shadow before updated active blocks
+  generate_shadow()
+
+  -- replace with "updated" active blocks
+  for row=1,4 do
+    for col=1,4 do
+      if m.rots[m.type][m.orientation][(row - 1) * 4 + col] == m.rot_ty.FILLED then
+        board.pf[row + m.y][col + m.x] = board.ty.ACTIVE
+      end
+    end
+  end
+end
+
+m.spawn = function ()
+  if not board.active then
+    return
+  end
+
+  local type = bag_pop()
+
+  local center_x = 0
+  if board.w % 2 ~= 0 then
+    center_x = math.floor(board.w / 2) - 1 -- odd offset -1 from middle
+  else
+    center_x = math.floor(board.w / 2) - 2 -- even offset -2 from the middle
+  end
+
+  m.x = center_x
+  m.y = 0
+  m.type = type
+  m.orientation = m.ori.U
+
+  m.update_playfield()
 end
 
 m.hold = function()
@@ -386,27 +422,54 @@ m.hold = function()
   m.update_playfield()
 end
 
-m.spawn = function ()
-  local type = bag_pop()
-
-  local center_x = 0
-  if board.w % 2 ~= 0 then
-    center_x = math.floor(board.w / 2) - 1 -- odd offset -1 from middle
-  else
-    center_x = math.floor(board.w / 2) - 2 -- even offset -2 from the middle
+-- dy must be greater than 0
+m.drop = function (dy)
+  if not board.active then
+    return
   end
 
-  m.x = center_x
-  m.y = 0
-  m.type = type
-  m.orientation = m.ori.U
+  while dy > 0 do
+    m.y = m.y + 1
+    -- test pos
+    if not does_pos_work() then
+      m.y = m.y - 1
+      break
+    end
+
+    dy = dy - 1
+  end
 
   m.update_playfield()
 end
 
-----------------------------------------------------------------
---- lateral_move and rotate returns the number of moves made ---
-----------------------------------------------------------------
+m.hard_drop = function ()
+  if not board.active then
+    return
+  end
+
+  repeat
+    m.y = m.y + 1
+    -- test pos
+  until not does_pos_work()
+  m.y = m.y - 1 -- push back one pos when pos fails
+
+  m.update_playfield()
+
+  lock()
+
+  board.clear_rows()
+
+  -- hard drop makes hold work again
+  holdable = true
+
+  if not board.is_game_over() then
+    m.spawn()
+  end
+end
+
+--------------------------------------------------------------
+-- lateral_move and rotate returns the number of moves made --
+--------------------------------------------------------------
 
 m.lateral_move = function (dx)
   if not board.active then
@@ -439,10 +502,6 @@ m.lateral_move = function (dx)
 end
 
 m.rotate = function (s_ori, e_ori)
-  if m.type == ty.O then -- for locking!
-    return 1
-  end
-
   if not board.active then
     return 0
   end
@@ -477,52 +536,5 @@ m.rotate = function (s_ori, e_ori)
   return 1
 end
 
--- dy must be greater than 0
-m.drop = function (dy)
-  if not board.active then
-    return
-  end
-
-  while dy > 0 do
-    m.y = m.y + 1
-    -- test pos
-    if not does_pos_work() then
-      m.y = m.y - 1
-      break
-    end
-
-    dy = dy - 1
-  end
-
-  m.update_playfield()
-end
-
-m.hard_drop = function ()
-  repeat
-    m.y = m.y + 1
-    -- test pos
-  until not does_pos_work()
-  m.y = m.y - 1 -- push back one pos when pos fails
-
-  m.update_playfield()
-
-  lock()
-
-  board.clear_rows()
-
-  -- hard drop makes hold work again
-  holdable = true
-
-  if not board.game_over() then
-    m.spawn()
-  end
-end
-
-m.reinit = function ()
-  m.hold_type = 0
-  holdable = true
-  bag = {}
-  bag_append_random_seven(1) -- single shuffled 7-bag appended by default
-end
 
 return m
