@@ -5,6 +5,7 @@ local board = require("tetra.board")
 local minos = require("tetra.minos")
 local display = require("tetra.display")
 
+local is_gravity_on = true
 local gravity_rate = 0.75 -- seconds until gravity drop, should not be 0 which is instant drop
 local lock_delay = 0.5 -- seconds until lock when on the ground???
 
@@ -25,6 +26,12 @@ local is_dcd_done = true -- defaults to no dcd
 
 local dt_factor = 1 -- for soft drop
 
+local lock_duration = 0 -- for locking!!!
+local touched_ground = false
+local lock_move_count = 0
+
+local LOCK_MOVE_LIMIT = 15 -- total number of rotations and movement until locks on ground after has touched ground
+
 -- inputs
 local INPUTS = { NIL = 0, R = 1, L = 2 }
 local last_input = INPUTS.NIL
@@ -43,6 +50,12 @@ local reset_durations = function ()
   is_dcd_done = true
 end
 
+local reset_locking = function ()
+  lock_duration = 0
+  touched_ground = false
+  lock_move_count = 0
+end
+
 local start_dcd = function ()
   dcd_duration = 0
   is_dcd_done = false
@@ -50,6 +63,7 @@ end
 
 local restart_tetra = function()
   reset_durations()
+  reset_locking()
 
   board.reinit_playfield()
   minos.reinit()
@@ -83,7 +97,13 @@ function love.update(dt)
       arr_duration = arr_duration + dt
 
       if arr_duration >= ARR then
-        minos.lateral_move(math.floor(arr_duration / (ARR + 1e-8))) -- in case of arr = 0
+
+        local moves = minos.lateral_move(math.floor(arr_duration / (ARR + 1e-8))) -- in case of arr = 0
+        if touched_ground then -- check moves for locking
+          lock_move_count = lock_move_count + moves
+        end
+        if moves > 0 then lock_duration = 0 end -- reset duration on working move
+
         last_input = INPUTS.R
         arr_duration = arr_duration - ARR
       end
@@ -91,7 +111,13 @@ function love.update(dt)
       arr_duration = arr_duration + dt
 
       if arr_duration >= ARR then
-        minos.lateral_move(-math.floor(arr_duration / (ARR + 1e-8)))  -- in case of arr = 0
+
+        local moves = minos.lateral_move(-math.floor(arr_duration / (ARR + 1e-8))) -- in case of arr = 0
+        if touched_ground then -- check moves for locking
+          lock_move_count = lock_move_count + moves
+        end
+        if moves > 0 then lock_duration = 0 end -- reset duration on working move
+
         last_input = INPUTS.L
         arr_duration = arr_duration - ARR
       end
@@ -112,11 +138,23 @@ function love.update(dt)
     if das_duration == 0 and not is_das_started then
       if love.keyboard.isDown("right") and last_input == INPUTS.NIL then
         last_input = INPUTS.R
-        minos.lateral_move(1)
+
+        local moves = minos.lateral_move(1)
+        if touched_ground then -- check moves for locking
+          lock_move_count = lock_move_count + moves
+        end
+        if moves > 0 then lock_duration = 0 end -- reset duration on working move
+
         is_das_started = true
       elseif love.keyboard.isDown("left") and last_input == INPUTS.NIL then
         last_input = INPUTS.L
-        minos.lateral_move(-1)
+
+        local moves = minos.lateral_move(-1)
+        if touched_ground then -- check moves for locking
+          lock_move_count = lock_move_count + moves
+        end
+        if moves > 0 then lock_duration = 0 end -- reset duration on working move
+
         is_das_started = true
       end
     end
@@ -149,10 +187,33 @@ function love.update(dt)
   end
 
   -- gravity???
-  gravity_duration = gravity_duration + dt_factor * dt
-  if gravity_duration >= gravity_rate then
-    minos.drop(math.floor(gravity_duration / (gravity_rate + 1e-8))) -- in case of gravity rate of 0, sanity check to avoid crash
-    gravity_duration = 0
+  if is_gravity_on then
+    gravity_duration = gravity_duration + dt_factor * dt
+    if gravity_duration >= gravity_rate then
+      minos.drop(math.floor(gravity_duration / (gravity_rate + 1e-8))) -- in case of gravity rate of 0, sanity check to avoid crash
+      gravity_duration = 0
+    end
+  end
+
+  -- check lock, if piece is not moveable
+  -- reset lock_duration if any lateral move or rotation
+  if lock_duration >= lock_delay then
+    reset_locking()
+    minos.hard_drop()
+  end
+  if minos.is_on_ground() then
+    lock_duration = lock_duration + dt
+
+    -- if first time touching ground
+    if not touched_ground then
+      touched_ground = true
+    end
+
+    -- if touched ground and lock move count too high! lock!
+    if touched_ground and lock_move_count >= LOCK_MOVE_LIMIT then
+      reset_locking()
+      minos.hard_drop()
+    end
   end
 end
 
@@ -184,16 +245,29 @@ function love.keypressed(key, scancode, isrepeat)
   end
 
   if key == "space" then -- hard drop / spawn new piece
+    reset_locking()
     minos.hard_drop()
   end
 
   -- rotations
   if key == "x" or key == "up" then -- clockwise
-    minos.rotate(minos.orientation, (minos.orientation - 1 + 1) % 4 + 1) -- (ori -1 to 0-index, +1 for to right) % 4 for overflow, +1 for 1-index
+    local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 1) % 4 + 1) -- (ori -1 to 0-index, +1 for to right) % 4 for overflow, +1 for 1-index
+    if touched_ground then -- check moves for locking
+      lock_move_count = lock_move_count + moves
+    end
+    if moves > 0 then lock_duration = 0 end -- reset duration on working move
   elseif key == "z" then -- counter
-    minos.rotate(minos.orientation, (minos.orientation - 1 + 3) % 4 + 1)
+    local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 3) % 4 + 1)
+    if touched_ground then -- check moves for locking
+      lock_move_count = lock_move_count + moves
+    end
+    if moves > 0 then lock_duration = 0 end -- reset duration on working move
   elseif key == "a" then -- 180
-    minos.rotate(minos.orientation, (minos.orientation - 1 + 2) % 4 + 1)
+    local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 2) % 4 + 1)
+    if touched_ground then -- check moves for locking
+      lock_move_count = lock_move_count + moves
+    end
+    if moves > 0 then lock_duration = 0 end -- reset duration on working move
   end
 end
 

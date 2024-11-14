@@ -5,6 +5,10 @@
   - 3 spawn rows along with 20 rows and 10 cols for base game
 - gravity for active piece
 - lock piece if stuck for too long
+  - if after touching ground, does 15(?) rotations or lateral moves, it will automatically lock on ground
+  - otherwise, locks on a timer! same for all... 0.5 seconds???
+  - guessed off of testing on tetrio
+  - IMPORTANT: TETRIO WILL LOCK ONTO THE !SAME! PIECE(S) THAT IT JUST TOUCHED, NOT NECESSARILY JUST GROUND. I ONLY IMPLEMENTED GROUND DETECTION CUZ IM LAZY.
 - clear rows if completely full of static pieces
 
 ## movement logic

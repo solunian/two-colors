@@ -337,6 +337,16 @@ end
 
 -- instance functions, uses instance variables (also board variables)
 
+m.is_on_ground = function ()
+  m.y = m.y + 1
+  if does_pos_work() then
+    m.y = m.y - 1
+    return false
+  end
+  m.y = m.y - 1
+  return true
+end
+
 m.peek_bag = function (n)
   local peek = {}
   if #bag >= n then
@@ -394,10 +404,16 @@ m.spawn = function ()
   m.update_playfield()
 end
 
+----------------------------------------------------------------
+--- lateral_move and rotate returns the number of moves made ---
+----------------------------------------------------------------
+
 m.lateral_move = function (dx)
   if not board.active then
-    return
+    return 0
   end
+
+  local move_count = 0
 
   -- |dx| greater than 1 should push to the very farthest until it is obstructed
   if math.abs(dx) > 0 then
@@ -406,61 +422,29 @@ m.lateral_move = function (dx)
       m.x = m.x + dx_dir
       dx = dx - dx_dir
 
+      -- increment!
+      move_count = move_count + 1
+
       -- test pos
       if not does_pos_work() then
         m.x = m.x - dx_dir
+        move_count = move_count - 1
         break
       end
     end
   end
 
   m.update_playfield()
-end
-
--- dy must be greater than 0
-m.drop = function (dy)
-  if not board.active then
-    return
-  end
-
-  while dy > 0 do
-    m.y = m.y + 1
-    -- test pos
-    if not does_pos_work() then
-      m.y = m.y - 1
-      break
-    end
-
-    dy = dy - 1
-  end
-  
-  m.update_playfield()
-end
-
-m.hard_drop = function ()
-  repeat
-    m.y = m.y + 1
-    -- test pos
-  until not does_pos_work()
-  m.y = m.y - 1 -- push back one pos when pos fails
-
-  m.update_playfield()
-
-  lock()
-
-  board.clear_rows()
-
-  -- hard drop makes hold work again
-  holdable = true
-
-  if not board.game_over() then
-    m.spawn()
-  end
+  return move_count
 end
 
 m.rotate = function (s_ori, e_ori)
+  if m.type == ty.O then -- for locking!
+    return 1
+  end
+
   if not board.active then
-    return
+    return 0
   end
 
   local old_x, old_y = m.x, m.y
@@ -484,9 +468,54 @@ m.rotate = function (s_ori, e_ori)
   if not does_pos_work() then
     m.orientation = s_ori
     m.x, m.y = old_x, old_y
+
+    m.update_playfield()
+    return 0
   end
 
   m.update_playfield()
+  return 1
+end
+
+-- dy must be greater than 0
+m.drop = function (dy)
+  if not board.active then
+    return
+  end
+
+  while dy > 0 do
+    m.y = m.y + 1
+    -- test pos
+    if not does_pos_work() then
+      m.y = m.y - 1
+      break
+    end
+
+    dy = dy - 1
+  end
+
+  m.update_playfield()
+end
+
+m.hard_drop = function ()
+  repeat
+    m.y = m.y + 1
+    -- test pos
+  until not does_pos_work()
+  m.y = m.y - 1 -- push back one pos when pos fails
+
+  m.update_playfield()
+
+  lock()
+
+  board.clear_rows()
+
+  -- hard drop makes hold work again
+  holdable = true
+
+  if not board.game_over() then
+    m.spawn()
+  end
 end
 
 m.reinit = function ()
