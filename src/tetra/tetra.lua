@@ -1,6 +1,8 @@
 local love = require("love")
 local math = require("math")
 
+local input = require("input")
+
 local board = require("tetra.board")
 local minos = require("tetra.minos")
 local display = require("tetra.display")
@@ -16,6 +18,19 @@ local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
 local DAS = 0.017 * 8 -- delayed auto shift (seconds)
 local DCD = 0.017 * 7 -- DAS cut delay (seconds)
 local SDF = 20 -- soft drop factor, increments the gravity_duration by sdf * 4 to trigger gravity faster
+
+-- custom key controls
+-- no input conflicts allowed!!! or else undefined behavior
+local resetk = { "r" }
+local pausek = { "p" }
+local rightk = { "right" }
+local leftk = { "left" }
+local softdropk = { "down" }
+local harddropk = { "space" }
+local holdk = { "c" }
+local cw_rotk = { "x", "up" }
+local ccw_rotk = { "z" }
+local deg180_rotk = { "a" }
 
 -- tracking for time
 local gravity_duration = 0
@@ -69,18 +84,16 @@ local restart_tetra = function()
 
   board.reinit_playfield()
   minos.reinit()
-  minos.spawn()
   board.active = true
+
+  -- can only spawn when board is active
+  minos.spawn()
 end
 
 
 -- love functions --
 
 tetra.load = function ()
-  love.window.setTitle("two colors")
-  love.window.setMode(1280, 720)
-  -- love.window.setMode(1280, 720, { fullscreen = true })
-
   restart_tetra()
 end
 
@@ -94,7 +107,7 @@ tetra.update = function (dt)
 
   -- repeated movement
   if das_duration >= DAS and is_dcd_done then -- repeated movement only when dcd is done and das was triggered
-    if love.keyboard.isDown("right") and last_input == INPUTS.R then
+    if input.anykeysdown(rightk) and last_input == INPUTS.R then
       arr_duration = arr_duration + dt
       if arr_duration >= ARR then
 
@@ -107,7 +120,7 @@ tetra.update = function (dt)
         last_input = INPUTS.R
         arr_duration = arr_duration % (ARR + 1e-8)
       end
-    elseif love.keyboard.isDown("left") and last_input == INPUTS.L then
+    elseif input.anykeysdown(leftk) and last_input == INPUTS.L then
       arr_duration = arr_duration + dt
       if arr_duration >= ARR then
 
@@ -126,16 +139,16 @@ tetra.update = function (dt)
   -- reset variables on keyrelease, or no lateral movement condition
   -- reset variables if r is not down and r is last_input
   -- same with l
-  if (not love.keyboard.isDown("right") and not love.keyboard.isDown("left") and last_input ~= INPUTS.NIL) or
-  (love.keyboard.isDown("left") and not love.keyboard.isDown("right") and last_input == INPUTS.R) or
-  (not love.keyboard.isDown("left") and love.keyboard.isDown("right") and last_input == INPUTS.L) then
+  if (not input.anykeysdown(leftk) and not input.anykeysdown(rightk) and last_input ~= INPUTS.NIL) or
+  (input.anykeysdown(leftk) and not input.anykeysdown(rightk) and last_input == INPUTS.R) or
+  (not input.anykeysdown(leftk) and input.anykeysdown(rightk) and last_input == INPUTS.L) then
     reset_durations()
   end
 
   -- start movement, non-repeat
   if is_dcd_done then
     if das_duration == 0 and not is_das_started then
-      if love.keyboard.isDown("right") and last_input == INPUTS.NIL then
+      if input.anykeysdown(rightk) and last_input == INPUTS.NIL then
         last_input = INPUTS.R
 
         local moves = minos.lateral_move(1)
@@ -145,7 +158,7 @@ tetra.update = function (dt)
         if moves > 0 then lock_duration = 0 end -- reset duration on working move
 
         is_das_started = true
-      elseif love.keyboard.isDown("left") and last_input == INPUTS.NIL then
+      elseif input.anykeysdown(leftk) and last_input == INPUTS.NIL then
         last_input = INPUTS.L
 
         local moves = minos.lateral_move(-1)
@@ -181,7 +194,7 @@ tetra.update = function (dt)
 
   -- soft drop
   dt_factor = 1
-  if love.keyboard.isDown("down") then
+  if input.anykeysdown(softdropk) then
     dt_factor = SDF * 4 -- times 4 to approximate tetrio's sdf
   end
 
@@ -220,48 +233,48 @@ tetra.keypressed = function (key, scancode, isrepeat)
 
   -- game setting inputs
 
-  if key == "r" then -- reset / start game
-    restart_tetra()
+  if input.anykeyequal(key, pausek) then -- pause / play game
+    board.active = not board.active
   end
 
-  if key == "p" then -- pause / play game
-    board.active = not board.active
+  if input.anykeyequal(key, resetk) then -- reset / start game
+    restart_tetra()
   end
 
   -- movement / playing inputs!
 
-  if key == "c" then
+  if input.anykeyequal(key, holdk) then
     minos.hold()
   end
 
   -- trigger dcd, only hard drop and rotations if on edge???
   -- rotations if holding left and is on the left side, delay after kick, same on right
-  if key == "space" or
-  ((key == "x" or key == "up" or key == "z" or key == "a") and
-  ((minos.x <= 1 and love.keyboard.isDown("left")) or (minos.x >= board.w - 4 and love.keyboard.isDown("right")))) then
+  if input.anykeyequal(key, harddropk) or
+  (input.anykeyequal(key, input.merge_tables(cw_rotk, ccw_rotk)) and
+  ((minos.x <= 1 and input.anykeysdown(leftk)) or (minos.x >= board.w - 4 and input.anykeysdown(rightk)))) then
     reset_durations()
     start_dcd()
   end
 
-  if key == "space" then -- hard drop / spawn new piece
+  if input.anykeyequal(key, harddropk) then -- hard drop / spawn new piece
     reset_locking()
     minos.hard_drop()
   end
 
   -- rotations
-  if key == "x" or key == "up" then -- clockwise
+  if input.anykeyequal(key, cw_rotk) then -- clockwise
     local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 1) % 4 + 1) -- (ori -1 to 0-index, +1 for to right) % 4 for overflow, +1 for 1-index
     if touched_ground then -- check moves for locking
       lock_move_count = lock_move_count + moves
     end
     if moves > 0 then lock_duration = 0 end -- reset duration on working move
-  elseif key == "z" then -- counter
+  elseif input.anykeyequal(key, ccw_rotk) then -- counter
     local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 3) % 4 + 1)
     if touched_ground then -- check moves for locking
       lock_move_count = lock_move_count + moves
     end
     if moves > 0 then lock_duration = 0 end -- reset duration on working move
-  elseif key == "a" then -- 180
+  elseif input.anykeyequal(key, deg180_rotk) then -- 180
     local moves = minos.rotate(minos.orientation, (minos.orientation - 1 + 2) % 4 + 1)
     if touched_ground then -- check moves for locking
       lock_move_count = lock_move_count + moves

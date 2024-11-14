@@ -5,7 +5,7 @@ local minos = require("tetra.minos")
 
 local d = {}
 
-local x, y = 0, 0
+local x, y = 300, board.ss
 
 local draw_mino = function (mino, x_offset, y_offset)
   for row=1,4 do
@@ -26,7 +26,7 @@ d.draw = function ()
   end
 
   for i,v in ipairs(peek) do
-    draw_mino(minos.rots[v][minos.ori.U], board.ss * 4 + 10, (i - 1) * board.ss * 4 + 10)
+    draw_mino(minos.rots[v][minos.ori.U], board.ss * 4 + board.ss, (i - 1) * board.ss * 4)
   end
 end
 
