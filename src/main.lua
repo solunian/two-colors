@@ -6,6 +6,7 @@ local minos = require("tetra.minos")
 local display = require("tetra.display")
 
 local gravity_rate = 0.75 -- seconds until gravity drop, should not be 0 which is instant drop
+local lock_delay = 0.5 -- seconds until lock when on the ground???
 
 -- custom features
 local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
@@ -173,8 +174,11 @@ function love.keypressed(key, scancode, isrepeat)
     minos.hold()
   end
 
-  -- trigger dcd, only hard drop and rotations??
-  if key == "space" or key == "x" or key == "up" or key == "z" or key == "a" then
+  -- trigger dcd, only hard drop and rotations if on edge???
+  -- rotations if holding left and is on the left side, delay after kick, same on right
+  if key == "space" or
+  ((key == "x" or key == "up" or key == "z" or key == "a") and
+  ((minos.x <= 1 and love.keyboard.isDown("left")) or (minos.x >= board.w - 4 and love.keyboard.isDown("right")))) then
     reset_durations()
     start_dcd()
   end

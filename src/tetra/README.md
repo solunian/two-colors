@@ -4,6 +4,7 @@
 - lose if a static piece is on the 1,2 rows going down
   - 3 spawn rows along with 20 rows and 10 cols for base game
 - gravity for active piece
+- lock piece if stuck for too long
 - clear rows if completely full of static pieces
 
 ## movement logic
@@ -23,5 +24,5 @@
 ## custom
 - ARR (Automatic Repeat Rate): how fast the lateral movement repeats
 - DAS (Delayed Auto Shift): time between initial lateral movement keypress and automatic repeated movements
-- DCD (DAS Cut Delay): delay after rotations/hard drops until DAS cuts back in
+- DCD (DAS Cut Delay): delay after rotations/hard drops until DAS cuts back in... rotations dcd might just be on the edge of the board???
 - SDF (Soft Drop Factor): multiplier against gravity for increasing soft drop speed
