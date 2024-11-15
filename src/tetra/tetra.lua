@@ -1,7 +1,6 @@
-local love = require("love")
 local math = require("math")
 
-local input = require("input")
+local input = require("util.input")
 
 local board = require("tetra.board")
 local minos = require("tetra.minos")
@@ -16,7 +15,7 @@ local lock_delay = 0.5 -- seconds until lock when on the ground???
 -- custom features
 local ARR = 0.017 * 1 -- automatic repeat rate (seconds)
 local DAS = 0.017 * 8 -- delayed auto shift (seconds)
-local DCD = 0.017 * 7 -- DAS cut delay (seconds)
+local DCD = 0.017 * 4 -- DAS cut delay (seconds)
 local SDF = 20 -- soft drop factor, increments the gravity_duration by sdf * 4 to trigger gravity faster
 
 -- custom key controls

@@ -17,9 +17,6 @@ end
 -- love functions!
 
 function love.load()
-  love.window.setTitle("two colors")
-  love.window.setMode(1280, 720)
-  -- love.window.setMode(1280, 720, { fullscreen = true })
 end
 
 function love.update(dt)
@@ -29,6 +26,7 @@ function love.update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
+  -- for dev stuff!
   if key == "return" then
     change_game(games.TETRA)
   end
