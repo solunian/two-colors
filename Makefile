@@ -7,7 +7,7 @@ dev: src/*
 
 build: src/*
 	mkdir -p build
-	cd src && zip -9 -r ${gamefile} . && mv ${gamefile} ../build/${gamefile} && cd ..
+	cd src && zip -9 -r ${gamefile} . -x *.md && mv ${gamefile} ../build/${gamefile} && cd ..
 
 run:
 	love build/${gamefile}
