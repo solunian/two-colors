@@ -7,6 +7,7 @@ local b = {}
 -- (3, 3) is top left, (23,23) is bottom right, rows 1-3 are spawn rows
 b.pf = {}
 b.active = false
+b.lines_cleared = 0 -- reset whenever reinit_playfield
 
 -- constant values --
 
@@ -34,6 +35,8 @@ end
 
 -- reset and init playfield
 b.reinit_playfield = function ()
+  b.lines_cleared = 0
+
   b.pf = {}
   for _=1,b.sh+b.h do
     local curr = {}
@@ -100,6 +103,7 @@ b.clear_rows = function ()
       end
       -- if cleared one, check the row shifted down
       checkrow = checkrow + 1
+      b.lines_cleared = b.lines_cleared + 1
     end
     -- decrement, pushing the check row up the playfield
     checkrow = checkrow - 1

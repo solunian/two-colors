@@ -9,7 +9,10 @@ local display = require("tetra.display")
 local tetra = {}
 
 local is_gravity_on = true
-local gravity_rate = 0.75 -- seconds until gravity drop, should not be 0 which is instant drop
+local DEFAULT_GRAVITY_RATE = 0.75
+local gravity_rate = DEFAULT_GRAVITY_RATE -- seconds until gravity drop, should not be 0 which is instant drop
+
+local is_lock_on = true
 local lock_delay = 0.5 -- seconds until lock when on the ground???
 
 -- custom features
@@ -194,38 +197,52 @@ tetra.update = function (dt)
   -- soft drop
   dt_factor = 1
   if input.anykeysdown(softdropk) then
-    dt_factor = SDF * 4 -- times 4 to approximate tetrio's sdf
+    dt_factor = SDF * 3 -- times 3 to approximate tetrio's sdf
+
+    -- allow soft drop when gravity is off
+    if not is_gravity_on then
+      gravity_duration = gravity_duration + dt * dt_factor
+      if gravity_duration >= DEFAULT_GRAVITY_RATE then
+        minos.drop(math.floor(gravity_duration / DEFAULT_GRAVITY_RATE))
+        gravity_duration = 0
+      end
+    end
   end
 
   -- gravity???
   if is_gravity_on then
-    gravity_duration = gravity_duration + dt_factor * dt
+    gravity_duration = gravity_duration + dt * dt_factor
     if gravity_duration >= gravity_rate then
       minos.drop(math.floor(gravity_duration / (gravity_rate + 1e-8))) -- in case of gravity rate of 0, sanity check to avoid crash
       gravity_duration = 0
     end
   end
 
-  -- check lock, if piece is not moveable
-  -- reset lock_duration if any lateral move or rotation
-  if lock_duration >= lock_delay then
-    reset_locking()
-    minos.hard_drop()
-  end
-  if minos.is_on_ground() then
-    lock_duration = lock_duration + dt
 
-    -- if first time touching ground
-    if not touched_ground then
-      touched_ground = true
-    end
-
-    -- if touched ground and lock move count too high! lock!
-    if touched_ground and lock_move_count >= LOCK_MOVE_LIMIT then
+  -- locking logic
+  if is_lock_on then
+    -- check lock, if piece is not moveable
+    -- reset lock_duration if any lateral move or rotation
+    if lock_duration >= lock_delay then
       reset_locking()
       minos.hard_drop()
     end
+    if minos.is_on_ground() then
+      lock_duration = lock_duration + dt
+
+      -- if first time touching ground
+      if not touched_ground then
+        touched_ground = true
+      end
+
+      -- if touched ground and lock move count too high! lock!
+      if touched_ground and lock_move_count >= LOCK_MOVE_LIMIT then
+        reset_locking()
+        minos.hard_drop()
+      end
+    end
   end
+
 end
 
 tetra.keypressed = function (key, scancode, isrepeat)
