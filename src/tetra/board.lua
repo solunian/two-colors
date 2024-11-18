@@ -115,13 +115,13 @@ b.draw = function ()
   for row=1,b.sh+b.h do
     for col=1,b.w do
       if b.pf[row][col] == b.ty.FILLED then
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(200 / 255, 0, 0, 1)
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.ACTIVE then
-        love.graphics.setColor(0, 0, 1, 1);
+        love.graphics.setColor(0, 0, 200 / 255, 1);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.SHADOW then
-        love.graphics.setColor(0, 0, 1, 0.5);
+        love.graphics.setColor(0, 0, 200 / 255, 0.5);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
       end
     end
