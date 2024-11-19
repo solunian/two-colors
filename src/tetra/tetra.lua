@@ -1,6 +1,7 @@
 local math = require("math")
 
 local input = require("util.input")
+local misc = require("util.misc")
 
 local board = require("tetra.board")
 local minos = require("tetra.minos")
@@ -266,7 +267,7 @@ tetra.keypressed = function (key, scancode, isrepeat)
   -- trigger dcd, only hard drop and rotations if on edge???
   -- rotations if holding left and is on the left side, delay after kick, same on right
   if input.anykeyequal(key, harddropk) or
-  (input.anykeyequal(key, input.merge_tables(cw_rotk, ccw_rotk)) and
+  (input.anykeyequal(key, misc.merge_tables(cw_rotk, ccw_rotk)) and
   ((minos.x <= 1 and input.anykeysdown(leftk)) or (minos.x >= board.w - 4 and input.anykeysdown(rightk)))) then
     reset_durations()
     start_dcd()

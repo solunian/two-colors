@@ -3,10 +3,11 @@ local love = require("love")
 local input = require("util.input")
 local matching = require("color.matching")
 local tetra = require("tetra.tetra")
+local tanks = require("tanks.tanks")
 
-local game_states = { MENU = 1, MATCHING = 2, TETRA = 3 }
-local state = game_states.MENU
-local num_states = 3 -- for dev purposes
+local game_states = { MENU = 1, MATCHING = 2, TETRA = 3, TANKS = 4 }
+local state = game_states.TANKS
+local num_states = 4 -- for dev purposes
 
 
 local change_game = function (game_val)
@@ -14,6 +15,8 @@ local change_game = function (game_val)
     matching.load()
   elseif game_val == game_states.TETRA then
     tetra.load()
+  elseif game_val == game_states.TANKS then
+    tanks.load()
   end
 
   state = game_val
@@ -27,6 +30,8 @@ function love.load()
     matching.load()
   elseif state == game_states.TETRA then
     tetra.load()
+  elseif state == game_states.TANKS then
+    tanks.load()
   end
 end
 
@@ -35,6 +40,8 @@ function love.update(dt)
     matching.update(dt)
   elseif state == game_states.TETRA then
     tetra.update(dt)
+  elseif state == game_states.TANKS then
+    tanks.update(dt)
   end
 end
 
@@ -48,6 +55,8 @@ function love.keypressed(key, scancode, isrepeat)
     matching.keypressed(key, scancode, isrepeat)
   elseif state == game_states.TETRA then
     tetra.keypressed(key, scancode, isrepeat)
+  elseif state == game_states.TANKS then
+    tanks.keypressed(key, scancode, isrepeat)
   end
 end
 
@@ -56,5 +65,7 @@ function love.draw()
     matching.draw()
   elseif state == game_states.TETRA then
     tetra.draw()
+  elseif state == game_states.TANKS then
+    tanks.draw()
   end
 end
