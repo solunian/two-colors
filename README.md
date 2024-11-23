@@ -7,7 +7,7 @@ Disclaimer: This is a not a legitimate medical treatment. Don't sue me, please. 
 
 ## Games Completed
 
-- [ ] tetra
+- [x] tetra
 - [ ] tanks from wii play: wasd to move, mouse/click to fire bullets, space bar for dropping a mine
 - [ ] getting chased
 
@@ -32,4 +32,10 @@ ARR, DAS, and DCD.
 
 Heavily referenced tetrio and other tables for specific details.
 
+All functionality essentials implemented.
+
 More notes [here](https://github.com/solunian/two-colors/tree/main/src/tetra/README.md).
+
+### Tanks
+
+Coding rn!
