@@ -3,8 +3,6 @@
 A game collection that uses only two main colors. 
 Designed to help people correct "lazy eye" (amblyopia) by using those red-blue tinted glasses (like for 3D movies).
 
-Disclaimer: This is a not a legitimate medical treatment. Don't sue me, please. But seriously, are you actually using this?
-
 ## Games Completed
 
 - [x] tetra
