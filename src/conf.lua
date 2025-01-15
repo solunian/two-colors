@@ -7,4 +7,5 @@ function love.conf(game)
   game.window.msaa = 4 -- multi-sample anti-aliasing
   game.window.highdpi = true
   -- game.window.fullscreen = true
+  game.window.resizable = false
 end

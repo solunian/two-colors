@@ -3,6 +3,7 @@ local love = require("love")
 local math = require("math")
 
 local input = require("util.input")
+local picker = require("color.picker")
 
 local m = {}
 
@@ -81,15 +82,18 @@ m.keypressed = function (key, scancode, isrepeat)
 end
 
 m.draw = function ()
-  local screen_w, screen_h = love.graphics.getWidth(), love.graphics.getHeight()
+  -- local screen_w, screen_h = love.graphics.getWidth(), love.graphics.getHeight()
 
-  if is_adjusting_left then
-    love.graphics.setColor(love.math.colorFromBytes(lr, lg, lb))
-    love.graphics.circle("fill", math.floor(screen_w / 3), math.floor(screen_h / 2), RADIUS)
-  else
-    love.graphics.setColor(love.math.colorFromBytes(rr, rg, rb))
-    love.graphics.circle("fill", math.floor(screen_w * 2 / 3), math.floor(screen_h / 2), RADIUS)
-  end
+  -- if is_adjusting_left then
+  --   love.graphics.setColor(love.math.colorFromBytes(lr, lg, lb))
+  --   love.graphics.circle("fill", math.floor(screen_w / 3), math.floor(screen_h / 2), RADIUS)
+  -- else
+  --   love.graphics.setColor(love.math.colorFromBytes(rr, rg, rb))
+  --   love.graphics.circle("fill", math.floor(screen_w * 2 / 3), math.floor(screen_h / 2), RADIUS)
+  -- end
+
+
+  picker.draw()
 end
 
 return m

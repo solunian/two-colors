@@ -6,7 +6,7 @@ local tetra = require("tetra.tetra")
 local tanks = require("tanks.tanks")
 
 local game_states = { MENU = 1, MATCHING = 2, TETRA = 3, TANKS = 4 }
-local state = game_states.TANKS
+local state = game_states.MATCHING
 local num_states = 4 -- for dev purposes
 
 
