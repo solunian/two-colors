@@ -15,9 +15,13 @@ local color_adjust_factor = 1
 local RADIUS = 100;
 
 m.load = function ()
+  picker.load()
 end
 
 m.update = function (dt)
+  picker.update(dt)
+
+
   if is_adjusting_left then
     if input.anykeysdown({"a"}) then
       lr = lr - color_adjust_factor

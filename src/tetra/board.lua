@@ -121,7 +121,7 @@ b.draw = function ()
         love.graphics.setColor(0, 0, 200 / 255, 1);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.SHADOW then
-        love.graphics.setColor(0, 0, 200 / 255, 0.5);
+        love.graphics.setColor(0, 0, 200 / 255, 0.8);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
       end
     end
