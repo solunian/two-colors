@@ -1,4 +1,7 @@
 local love = require("love")
+local push = require("lib.push")
+local constants = require("util.constants")
+local input     = require("util.input")
 
 -- Converts HSL to RGB. (input and output range: 0 - 1)
 local function hsl_to_rgba(h, s, l, a)
@@ -16,23 +19,29 @@ local function hsl_to_rgba(h, s, l, a)
   end return r+m, g+m, b+m, a
 end
 
-local scale = 0.75 -- ?? wut
+local scale = 1 -- ?? wut
 
-local x, y = 200, 200
 local w = 600 * scale
 local h = 300 * scale
-
 local component_offset = 10
+local colorbar_w_ratio_denom = 6
+local slider_h_ratio_denom = 12
 
-local colorbar_w = w / 6
+-- directly centered
+local x = (constants.window_width - w - (w / colorbar_w_ratio_denom) - component_offset) / 2
+local y = (constants.window_height - h - (h / slider_h_ratio_denom) - component_offset) / 2
+
+
+
+local colorbar_w = w / colorbar_w_ratio_denom
 
 local slider_offset = 1 -- percentage of slider thing of the slider width
 local sx = x + w -- slider x
 local slider_w = w
-local slider_h = colorbar_w / 2
+local slider_h = w / slider_h_ratio_denom
 
 local mousex, mousey = 0, 0
-local px, py = 0, 0 -- pointer position for picker
+local px, py = x, y -- pointer position for picker
 
 
 
@@ -49,33 +58,24 @@ end
 p.update = function (dt)
 end
 
+p.keypressed = function (key, scancode, isrepeat)
+end
+
 -- saturation on x axis
 -- lightness on y axis
-
 p.draw = function ()
   slider_offset = (sx - x) / w
 
   if love.mouse.isDown(1) then
-    mousex, mousey = love.mouse.getX(), love.mouse.getY()
+    mousex, mousey = input.get_mouse()
   end
 
   if x <= mousex and mousex <= x + w and y <= mousey and mousey <= y + h then
-    -- smooth mouse movements
-    -- if px ~= mousex then
-    --   px = px + ((mousex - px) * 8 / 10 * scale)
-    -- end
-    -- if py ~= mousey then
-    --   py = py + ((mousey - py) * 8 / 10 * scale)
-    -- end
     px = mousex
     py = mousey
   end
 
   if x <= mousex and mousex <= x + w and y + h + component_offset <= mousey and mousey <= y + h + component_offset + slider_h then
-    -- smooth mouse movements
-    -- if sx ~= mousex then
-    --   sx = sx + ((mousex - sx) * 3 / 5 * scale)
-    -- end
     sx = mousex
   end
 

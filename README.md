@@ -22,6 +22,11 @@ Looking through a pure blue filter would only show blue light, and same with eve
 
 Match the opposite color into the black background.
 
+### Libs Used
+
+- [push](https://github.com/Ulydev/push): for aspect ratio windowing stuff
+- [lume](https://github.com/rxi/lume): serialization for save data
+
 ### Tetra
 
 Recreating the famous stacking game is more complex than one might think.
