@@ -1,3 +1,4 @@
+local Object = require("lib.object")
 local input = require("util.input")
 
 local tc = {} -- tank class
@@ -11,57 +12,52 @@ local TANK_TYPES = {
 ----------------
 -- class Tank --
 ----------------
-local Tank = {
-  tank_type = TANK_TYPES.NIL,
-  x = 0, y = 0, w = 20, h = 20,
-  rotation = 0, speed = 0, rotation_speed = 0
-}
+local Tank = Object:extend()
 
-Tank.new = function (self)
-  local obj = {}
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
+function Tank:new()
+  self.tank_type = TANK_TYPES.NIL
+  self.x, self.y = 0, 0
+  self.w, self.h = 20, 20
+  self.rotation = 0
+  self.speed = 0
+  self.rotation_speed = 0
 end
 
-Tank.set_pos = function (self, x, y)
+function Tank:set_pos(x, y)
   self.x = x
   self.y = y
 end
 
-Tank.change_x = function (self, dx)
+function Tank:change_x(dx)
   self.x = self.x + dx
 end
 
-Tank.change_y = function (self, dy)
+function Tank:change_y(dy)
   self.y = self.y + dy
 end
 
-Tank.fire = function (self)
+function Tank:fire()
   print("fire!")
 end
 
-Tank.plant_mine = function (self)
+function Tank:plant_mine()
   print("plant mine!")
 end
 
 -- collider table must have x, y, w, h, rotation
-Tank.has_collided = function (self, collider)
+function Tank:has_collided(collider)
 end
 
-Tank.draw = function (self)
-
+function Tank:draw()
 end
 
 ----------------------
 -- class PlayerTank --
 ----------------------
-local PlayerTank = Tank:new() -- inherit Tank
-PlayerTank.new = function (self) -- polymorphism in the constructor???
-  local obj = Tank:new()
-  setmetatable(obj, self)
-  self.__index = self
+local PlayerTank = Tank:extend() -- inherit Tank
 
+function PlayerTank:new()
+  PlayerTank.super.new(self)
   -- set inputs??
   self.tank_type = TANK_TYPES.P1
   self.speed = 1
@@ -74,11 +70,9 @@ PlayerTank.new = function (self) -- polymorphism in the constructor???
     fire = {"space"},
     mine = {"lshift"}
   }
-
-  return obj
 end
 
-PlayerTank.set_inputs = function(self, inputs)
+function PlayerTank:set_inputs(inputs)
   self.inputs = {
     up = inputs.up or self.inputs.up,
     left = inputs.left or self.inputs.left,
@@ -89,7 +83,7 @@ PlayerTank.set_inputs = function(self, inputs)
   }
 end
 
-PlayerTank.check_inputsdown = function(self)
+function PlayerTank:check_inputsdown()
   if input.anykeysdown(self.inputs.up) then
     self:change_y(-1)
   end
@@ -105,7 +99,7 @@ PlayerTank.check_inputsdown = function(self)
   end
 end
 
-PlayerTank.check_inputspressed = function(self, key)
+function PlayerTank:check_inputspressed(key)
   if input.anykeyequal(key, self.inputs.fire) then
     self:fire()
   end
@@ -114,8 +108,8 @@ PlayerTank.check_inputspressed = function(self, key)
   end
 end
 
-PlayerTank.update = function(self)
-  Tank.update(self)
+function PlayerTank:update()
+  PlayerTank.super.update(self)
   -- input movement
 
   -- check movement collisions
@@ -124,7 +118,7 @@ end
 ---------------------
 -- class EnemyTank -- 
 ---------------------
-local EnemyTank = Tank:new() -- inherit Tank
+local EnemyTank = Tank:extend() -- inherit Tank
 
 
 tc = { TANK_TYPES = TANK_TYPES, PlayerTank = PlayerTank, EnemyTank = EnemyTank }

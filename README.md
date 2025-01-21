@@ -25,6 +25,7 @@ Match the opposite color into the black background.
 ### Libs Used
 
 - [push](https://github.com/Ulydev/push): for aspect ratio windowing stuff
+- [classic](https://github.com/rxi/classic): for simple oop stuff, renamed to lib/object
 - [lume](https://github.com/rxi/lume): serialization for save data
 
 ### Tetra

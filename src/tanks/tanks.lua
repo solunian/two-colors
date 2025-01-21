@@ -13,7 +13,10 @@ local mines = {}
 
 
 t.load = function ()
-  local tank = tankclass.PlayerTank:new()
+  tanks = {}
+  projectiles = {}
+  mines = {}
+  local tank = tankclass.PlayerTank()
   table.insert(tanks, tank)
 end
 
