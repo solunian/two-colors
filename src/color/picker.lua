@@ -16,7 +16,7 @@ local function hsl_to_rgba(h, s, l, a)
   end return r+m, g+m, b+m, a
 end
 
-local scale = 1 -- ?? wut
+local scale = 0.75 -- ?? wut
 
 local x, y = 200, 200
 local w = 600 * scale
@@ -29,7 +29,7 @@ local colorbar_w = w / 6
 local slider_offset = 1 -- percentage of slider thing of the slider width
 local sx = x + w -- slider x
 local slider_w = w
-local slider_h = colorbar_w / 4
+local slider_h = colorbar_w / 2
 
 local mousex, mousey = 0, 0
 local px, py = 0, 0 -- pointer position for picker
@@ -47,6 +47,12 @@ p.load = function ()
 end
 
 p.update = function (dt)
+end
+
+-- saturation on x axis
+-- lightness on y axis
+
+p.draw = function ()
   slider_offset = (sx - x) / w
 
   if love.mouse.isDown(1) then
@@ -55,14 +61,14 @@ p.update = function (dt)
 
   if x <= mousex and mousex <= x + w and y <= mousey and mousey <= y + h then
     -- smooth mouse movements
-    if px ~= mousex then
-      px = px + ((mousex - px) * 9 / 10 * scale)
-    end
-    if py ~= mousey then
-      py = py + ((mousey - py) * 9 / 10 * scale)
-    end
-    -- px = mousex
-    -- py = mousey
+    -- if px ~= mousex then
+    --   px = px + ((mousex - px) * 8 / 10 * scale)
+    -- end
+    -- if py ~= mousey then
+    --   py = py + ((mousey - py) * 8 / 10 * scale)
+    -- end
+    px = mousex
+    py = mousey
   end
 
   if x <= mousex and mousex <= x + w and y + h + component_offset <= mousey and mousey <= y + h + component_offset + slider_h then
@@ -72,27 +78,6 @@ p.update = function (dt)
     -- end
     sx = mousex
   end
-
-  -- if escape bounds set back to the farthest position
-  -- if px < x then
-  --   px = x
-  -- end
-  -- if px > x + w then
-  --   px = x + w
-  -- end
-  -- if py < y then
-  --   py = y
-  -- end
-  -- if py > y + h then
-  --   py = y + h
-  -- end
-end
-
-
--- saturation on x axis
--- lightness on y axis
-
-p.draw = function ()
 
   -- hsl spectrum
   for row=0,h do

@@ -5,44 +5,25 @@ local matching = require("color.matching")
 local tetra = require("tetra.tetra")
 local tanks = require("tanks.tanks")
 
-local game_states = { MENU = 1, MATCHING = 2, TETRA = 3, TANKS = 4 }
-local state = game_states.MATCHING
-local num_states = 4 -- for dev purposes
+local game_states = { matching, tetra, tanks }
+local state = 1
+local num_states = 3 -- for dev purposes
 
 
 local change_game = function (game_val)
-  if game_val == game_states.MATCHING then
-    matching.load()
-  elseif game_val == game_states.TETRA then
-    tetra.load()
-  elseif game_val == game_states.TANKS then
-    tanks.load()
-  end
-
   state = game_val
+  game_states[state].load()
 end
 
 
 -- love functions!
 
 function love.load()
-  if state == game_states.MATCHING then
-    matching.load()
-  elseif state == game_states.TETRA then
-    tetra.load()
-  elseif state == game_states.TANKS then
-    tanks.load()
-  end
+  game_states[state].load()
 end
 
 function love.update(dt)
-  if state == game_states.MATCHING then
-    matching.update(dt)
-  elseif state == game_states.TETRA then
-    tetra.update(dt)
-  elseif state == game_states.TANKS then
-    tanks.update(dt)
-  end
+  game_states[state].update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -51,21 +32,9 @@ function love.keypressed(key, scancode, isrepeat)
     change_game(state % num_states + 1) -- should be % by the number of states
   end
 
-  if state == game_states.MATCHING then
-    matching.keypressed(key, scancode, isrepeat)
-  elseif state == game_states.TETRA then
-    tetra.keypressed(key, scancode, isrepeat)
-  elseif state == game_states.TANKS then
-    tanks.keypressed(key, scancode, isrepeat)
-  end
+  game_states[state].keypressed(key, scancode, isrepeat)
 end
 
 function love.draw()
-  if state == game_states.MATCHING then
-    matching.draw()
-  elseif state == game_states.TETRA then
-    tetra.draw()
-  elseif state == game_states.TANKS then
-    tanks.draw()
-  end
+  game_states[state].draw()
 end
