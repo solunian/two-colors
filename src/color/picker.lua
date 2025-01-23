@@ -1,37 +1,22 @@
 local love = require("love")
-local push = require("lib.push")
+local misc = require("util.misc")
 local constants = require("util.constants")
-local input     = require("util.input")
+local input = require("util.input")
 
--- Converts HSL to RGB. (input and output range: 0 - 1)
-local function hsl_to_rgba(h, s, l, a)
-  if s<=0 then return l,l,l,a end
-  h, s, l = h*6, s, l
-  local c = (1-math.abs(2*l-1))*s
-  local x = (1-math.abs(h%2-1))*c
-  local m,r,g,b = (l-.5*c), 0,0,0
-  if h < 1     then r,g,b = c,x,0
-  elseif h < 2 then r,g,b = x,c,0
-  elseif h < 3 then r,g,b = 0,c,x
-  elseif h < 4 then r,g,b = 0,x,c
-  elseif h < 5 then r,g,b = x,0,c
-  else              r,g,b = c,0,x
-  end return r+m, g+m, b+m, a
-end
+local scale = 1 -- lol
 
-local scale = 1 -- ?? wut
-
-local w = 600 * scale
-local h = 300 * scale
+-- VARIABLES FOR ACTUAL COLOR PICKER THING --
+local w = 500 * scale -- just spectrum w
+local h = w / 2 -- just spectrum h
 local component_offset = 10
 local colorbar_w_ratio_denom = 6
 local slider_h_ratio_denom = 12
 
--- directly centered
+-- directly centered, then y pushed to 5 / 3 times
 local x = (constants.window_width - w - (w / colorbar_w_ratio_denom) - component_offset) / 2
-local y = (constants.window_height - h - (h / slider_h_ratio_denom) - component_offset) / 2
+local y = ((constants.window_height - h - (h / slider_h_ratio_denom) - component_offset) / 2) * 3 / 2
 
-
+local px, py = x, y -- pointer position for picker
 
 local colorbar_w = w / colorbar_w_ratio_denom
 
@@ -39,20 +24,38 @@ local slider_offset = 1 -- percentage of slider thing of the slider width
 local sx = x + w -- slider x
 local slider_w = w
 local slider_h = w / slider_h_ratio_denom
+--------------------------------------------
 
+-- MOUSE VARIABLES --
 local mousex, mousey = 0, 0
-local px, py = x, y -- pointer position for picker
+---------------------
+
+-- LENS VARIABLES --
+local lx, ly = constants.window_width / 2, constants.window_height / 6 -- from the center anchor
+local lw, lh = w / 2, w / 4
+local lens_lcolor, lens_rcolor = {0, 0, 1, 1}, {1, 0, 0, 1}
+local loffset = w / 15 -- individual offset from the center anchor xy
+local is_left_selected = true
+local rounding_radius = w / 30
+--------------------
 
 
-
+-- calculates the rgba from the coordinate positions
 local function xy_to_rgb()
-  return hsl_to_rgba(slider_offset, (px - x) / w, 1 - ((py - y) / h), 1)
+  return misc.hsla_to_rgba(slider_offset, (px - x) / w, 1 - ((py - y) / h), 1)
+end
+
+local function set_xy_from_rgb(r, g, b)
+  local hue, sat, lig = misc.rgb_to_hsl(r, g, b)
+  px = x + sat * w
+  py = y + lig * h
+  sx = x + hue * slider_w
+  print(hue, sat, lig)
 end
 
 local p = {}
 
 p.load = function ()
-  
 end
 
 p.update = function (dt)
@@ -68,21 +71,36 @@ p.draw = function ()
 
   if love.mouse.isDown(1) then
     mousex, mousey = input.get_mouse()
+
+    if misc.within(mousex, lx - lw - loffset, lx - loffset) and misc.within(mousey, ly, ly + lh) then
+      is_left_selected = true
+    elseif misc.within(mousex, lx + loffset, lx + lw + loffset) and misc.within(mousey, ly, ly + lh) then
+      is_left_selected = false
+    end
+
+    if misc.within(mousex, x, x + w) and misc.within(mousey, y, y + h) then
+      px = mousex
+      py = mousey
+    end
+    if misc.within(mousex, x, x + w) and misc.within(mousey, y + h + component_offset, y + h + component_offset + slider_h) then
+      sx = mousex
+    end
   end
 
-  if x <= mousex and mousex <= x + w and y <= mousey and mousey <= y + h then
-    px = mousex
-    py = mousey
+  -- bind slider to lens colors
+  if is_left_selected then
+    lens_lcolor = {xy_to_rgb()}
+  else
+    lens_rcolor = {xy_to_rgb()}
   end
 
-  if x <= mousex and mousex <= x + w and y + h + component_offset <= mousey and mousey <= y + h + component_offset + slider_h then
-    sx = mousex
-  end
+
+
 
   -- hsl spectrum
   for row=0,h do
     for col=0,w do
-      love.graphics.setColor(hsl_to_rgba(slider_offset, col / w, 1 - (row / h), 1))
+      love.graphics.setColor(misc.hsla_to_rgba(slider_offset, col / w, 1 - (row / h), 1))
       love.graphics.points(x + col, y + row)
     end
   end
@@ -93,7 +111,7 @@ p.draw = function ()
 
   -- saturation bar
   for dx=0,slider_w do
-    love.graphics.setColor(hsl_to_rgba(dx / slider_w, 1, 0.5, 1))
+    love.graphics.setColor(misc.hsla_to_rgba(dx / slider_w, 1, 0.5, 1))
     love.graphics.rectangle("fill", x + dx, y + h + component_offset, 1, slider_h)
   end
 
@@ -109,6 +127,25 @@ p.draw = function ()
   love.graphics.circle("line", px, py, 4)
   love.graphics.setColor(0, 0, 0, 1)
   love.graphics.circle("line", px, py, 5)
+
+  -- lens rectangles
+  if is_left_selected then
+    love.graphics.setColor(1, 1, 1)
+    -- love.graphics.rectangle("fill", lx - loffset - lw - 5, ly - 5, lw + 10, lh + 10)
+    misc.round_rectangle(lx - loffset - lw - 5, ly - 5, lw + 10, lh + 10, rounding_radius)
+  else
+    love.graphics.setColor(1, 1, 1)
+    -- love.graphics.rectangle("fill", lx + loffset - 5, ly - 5, lw + 10, lh + 10)
+    misc.round_rectangle(lx + loffset - 5, ly - 5, lw + 10, lh + 10, rounding_radius)
+  end
+
+  love.graphics.setColor(lens_lcolor)
+  -- love.graphics.rectangle("fill", lx - loffset - lw, ly, lw, lh)
+  misc.round_rectangle(lx - loffset - lw, ly, lw, lh, rounding_radius)
+
+  love.graphics.setColor(lens_rcolor)
+  -- love.graphics.rectangle("fill", lx + loffset, ly, lw, lh)
+  misc.round_rectangle(lx + loffset, ly, lw, lh, rounding_radius)
 end
 
 

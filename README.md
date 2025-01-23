@@ -22,6 +22,8 @@ Looking through a pure blue filter would only show blue light, and same with eve
 
 Match the opposite color into the black background.
 
+Switch colors around randomly in the middle of playing a game.
+
 ### Libs Used
 
 - [push](https://github.com/Ulydev/push): for aspect ratio windowing stuff
