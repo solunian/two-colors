@@ -48,14 +48,20 @@ end
 local function set_xy_from_rgb(r, g, b)
   local hue, sat, lig = misc.rgb_to_hsl(r, g, b)
   px = x + sat * w
-  py = y + lig * h
+  py = y + (1 - lig) * h
+  slider_offset = hue
   sx = x + hue * slider_w
-  print(hue, sat, lig)
+  -- print(hue, sat, lig)
 end
 
 local p = {}
 
 p.load = function ()
+  if is_left_selected then
+    set_xy_from_rgb(unpack(lens_lcolor))
+  else
+    set_xy_from_rgb(unpack(lens_rcolor))
+  end
 end
 
 p.update = function (dt)
@@ -74,15 +80,14 @@ p.draw = function ()
 
     if misc.within(mousex, lx - lw - loffset, lx - loffset) and misc.within(mousey, ly, ly + lh) then
       is_left_selected = true
+      set_xy_from_rgb(unpack(lens_lcolor))
     elseif misc.within(mousex, lx + loffset, lx + lw + loffset) and misc.within(mousey, ly, ly + lh) then
       is_left_selected = false
-    end
-
-    if misc.within(mousex, x, x + w) and misc.within(mousey, y, y + h) then
+      set_xy_from_rgb(unpack(lens_rcolor))
+    elseif misc.within(mousex, x, x + w) and misc.within(mousey, y, y + h) then
       px = mousex
       py = mousey
-    end
-    if misc.within(mousex, x, x + w) and misc.within(mousey, y + h + component_offset, y + h + component_offset + slider_h) then
+    elseif misc.within(mousex, x, x + w) and misc.within(mousey, y + h + component_offset, y + h + component_offset + slider_h) then
       sx = mousex
     end
   end
@@ -93,9 +98,6 @@ p.draw = function ()
   else
     lens_rcolor = {xy_to_rgb()}
   end
-
-
-
 
   -- hsl spectrum
   for row=0,h do

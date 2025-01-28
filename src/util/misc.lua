@@ -20,6 +20,33 @@ misc.hsla_to_rgba = function(h, s, l, a)
   end return r+m, g+m, b+m, a
 end
 
+misc.rgb_to_hsl = function(r, g, b)
+  local v = math.max(r, g, b)
+  local xmin = math.min(r, g, b)
+  local c = v - xmin
+  local l = (v + xmin) / 2
+
+  local h = 0
+  if c == 0 then
+    h = 0
+  elseif v == r then
+    h = 60 * (((g - b) / c) % 6)
+  elseif v == g then
+    h = 60 * (((b - r) / c) + 2)
+  elseif v == b then
+    h = 60 * (((r - g) / c) + 4)
+  end
+
+  local s = 0
+  if l == 0 or l == 1 then
+    s = 0
+  else
+    s = (v - l) / math.min(l, 1 - l)
+  end
+
+  return h / 360, s, l
+end
+
 misc.round_rectangle = function(x, y, width, height, radius)
 	--RECTANGLES
 	love.graphics.rectangle("fill", x + radius, y + radius, width - (radius * 2), height - radius * 2)
