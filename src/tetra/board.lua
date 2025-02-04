@@ -1,5 +1,6 @@
 local love = require("love")
 local table = require("table")
+local picker = require("color.picker")
 
 local b = {}
 
@@ -111,17 +112,20 @@ b.clear_rows = function ()
 end
 
 b.draw = function ()
+  local filled_color = picker.lens_rcolor
+  local active_color = picker.lens_lcolor
+
   -- draw current board with all the squares
   for row=1,b.sh+b.h do
     for col=1,b.w do
       if b.pf[row][col] == b.ty.FILLED then
-        love.graphics.setColor(200 / 255, 0, 0, 1)
+        love.graphics.setColor(filled_color)
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.ACTIVE then
-        love.graphics.setColor(0, 0, 200 / 255, 1);
+        love.graphics.setColor(active_color);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.SHADOW then
-        love.graphics.setColor(0, 0, 200 / 255, 0.8);
+        love.graphics.setColor(active_color[1], active_color[2], active_color[3], 0.8);
         love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
       end
     end

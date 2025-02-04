@@ -3,6 +3,8 @@ local misc = require("util.misc")
 local constants = require("util.constants")
 local input = require("util.input")
 
+local p = {}
+
 local scale = 1 -- lol
 
 -- VARIABLES FOR ACTUAL COLOR PICKER THING --
@@ -33,7 +35,7 @@ local mousex, mousey = 0, 0
 -- LENS VARIABLES --
 local lx, ly = constants.window_width / 2, constants.window_height / 6 -- from the center anchor
 local lw, lh = w / 2, w / 4
-local lens_lcolor, lens_rcolor = {0, 0, 1, 1}, {1, 0, 0, 1}
+p.lens_lcolor, p.lens_rcolor = {0, 0, 1}, {1, 0, 0}
 local loffset = w / 15 -- individual offset from the center anchor xy
 local is_left_selected = true
 local rounding_radius = w / 30
@@ -54,13 +56,11 @@ local function set_xy_from_rgb(r, g, b)
   -- print(hue, sat, lig)
 end
 
-local p = {}
-
 p.load = function ()
   if is_left_selected then
-    set_xy_from_rgb(unpack(lens_lcolor))
+    set_xy_from_rgb(unpack(p.lens_lcolor))
   else
-    set_xy_from_rgb(unpack(lens_rcolor))
+    set_xy_from_rgb(unpack(p.lens_rcolor))
   end
 end
 
@@ -80,10 +80,10 @@ p.draw = function ()
 
     if misc.within(mousex, lx - lw - loffset, lx - loffset) and misc.within(mousey, ly, ly + lh) then
       is_left_selected = true
-      set_xy_from_rgb(unpack(lens_lcolor))
+      set_xy_from_rgb(unpack(p.lens_lcolor))
     elseif misc.within(mousex, lx + loffset, lx + lw + loffset) and misc.within(mousey, ly, ly + lh) then
       is_left_selected = false
-      set_xy_from_rgb(unpack(lens_rcolor))
+      set_xy_from_rgb(unpack(p.lens_rcolor))
     elseif misc.within(mousex, x, x + w) and misc.within(mousey, y, y + h) then
       px = mousex
       py = mousey
@@ -94,9 +94,9 @@ p.draw = function ()
 
   -- bind slider to lens colors
   if is_left_selected then
-    lens_lcolor = {xy_to_rgb()}
+    p.lens_lcolor = {xy_to_rgb()}
   else
-    lens_rcolor = {xy_to_rgb()}
+    p.lens_rcolor = {xy_to_rgb()}
   end
 
   -- hsl spectrum
@@ -141,11 +141,11 @@ p.draw = function ()
     misc.round_rectangle(lx + loffset - 5, ly - 5, lw + 10, lh + 10, rounding_radius)
   end
 
-  love.graphics.setColor(lens_lcolor)
+  love.graphics.setColor(p.lens_lcolor)
   -- love.graphics.rectangle("fill", lx - loffset - lw, ly, lw, lh)
   misc.round_rectangle(lx - loffset - lw, ly, lw, lh, rounding_radius)
 
-  love.graphics.setColor(lens_rcolor)
+  love.graphics.setColor(p.lens_rcolor)
   -- love.graphics.rectangle("fill", lx + loffset, ly, lw, lh)
   misc.round_rectangle(lx + loffset, ly, lw, lh, rounding_radius)
 end
