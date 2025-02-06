@@ -18,7 +18,7 @@ push:setupScreen(constants.window_width, constants.window_height, constants.wind
 
 -- all game_states must have functions: load(), update(dt), keypressed(key, scancode, isrepeat), draw()
 local game_states = { picker, tetra, tanks }
-local state = 1
+local state = 3
 local num_states = 3 -- for dev purposes
 
 
