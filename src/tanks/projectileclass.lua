@@ -1,4 +1,5 @@
 local Object = require("lib.object")
+local constants = require("util.constants")
 
 local pc = {} -- projectile class
 
@@ -10,11 +11,28 @@ function Projectile:new(x, y, theta)
   self.speed = 350
   self.dx = self.speed * math.cos(theta)
   self.dy = self.speed * math.sin(theta)
-
-  print(self.x, self.y)
+  self.bounces = 0
+  self.bounces_to_destroy = 2
 end
 
 function Projectile:update(dt)
+  if self.y - self.r < 0 then
+    self.dy = math.abs(self.dy)
+    self.bounces = self.bounces + 1
+  end
+  if self.y + self.r > constants.window_height then
+    self.dy = -math.abs(self.dy)
+    self.bounces = self.bounces + 1
+  end
+  if self.x - self.r < 0 then
+    self.dx = math.abs(self.dx)
+    self.bounces = self.bounces + 1
+  end
+  if self.x + self.r > constants.window_width then
+    self.dx = -math.abs(self.dx)
+    self.bounces = self.bounces + 1
+  end
+
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
 end

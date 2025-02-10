@@ -9,18 +9,18 @@ local projectileclass = require("tanks.projectileclass")
 
 local t = {}
 
+local tanks = {} -- all tanks
 local mines = {}
 
 
 t.load = function ()
-  tankclass.tanktable = {}
-  projectileclass.projectiles = {}
+  tanks = {}
   mines = {}
-  tankclass.PlayerTank()
+  table.insert(tanks, tankclass.PlayerTank())
 end
 
 t.update = function (dt)
-  for _,tank in pairs(tankclass.tanks) do
+  for _,tank in pairs(tanks) do
     tank:update(dt)
     -- if tank.tank_type == tankclass.TANK_TYPES.P1 then
     -- end
@@ -35,7 +35,7 @@ t.update = function (dt)
 end
 
 t.keypressed = function (key, scancode, isrepeat)
-  for _,tank in pairs(tankclass.tanks) do
+  for _,tank in pairs(tanks) do
     if tank.tank_type == tankclass.TANK_TYPES.P1 then
       tank:check_inputspressed(key)
     end
@@ -44,7 +44,7 @@ end
 
 t.draw = function ()
   -- loop through tables to draw all of them
-  for _,tank in pairs(tankclass.tanks) do
+  for _,tank in pairs(tanks) do
     -- no mouse?
     -- love.mouse.setVisible(false)
     local mousex, mousey = input.get_mouse()

@@ -1,9 +1,9 @@
 local Object = require("lib.object")
 local input = require("util.input")
 local projectileclass = require("tanks.projectileclass")
+local constants       = require("util.constants")
 
 local tc = {} -- tank class
-local tanks = {} -- all tanks
 
 local TANK_TYPES = {
   NIL = 0,
@@ -24,7 +24,7 @@ function Tank:new()
   self.speed = 0
   self.rotation_speed = 0
   self.projectiles = {}
-  table.insert(tanks, self)
+  self.is_active = false
 end
 
 function Tank:set_pos(x, y)
@@ -33,19 +33,47 @@ function Tank:set_pos(x, y)
 end
 
 function Tank:change_x(dx)
-  self.x = self.x + dx
+  if not self.is_active then
+    return
+  end
+
+  if self.x + dx < 0 then
+    self.x = 0
+  elseif self.x + dx + self.w > constants.window_width then
+    self.x = constants.window_width - self.w
+  else
+    self.x = self.x + dx
+  end
 end
 
 function Tank:change_y(dy)
-  self.y = self.y + dy
+  if not self.is_active then
+    return
+  end
+
+  if self.y + dy < 0 then
+    self.y = 0
+  elseif self.y + dy + self.h > constants.window_height then
+    self.y = constants.window_height - self.h
+  else
+    self.y = self.y + dy
+  end
 end
 
 function Tank:fire()
+  if not self.is_active then
+    return
+  end
+
   table.insert(self.projectiles, projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation))
   print("fire!")
 end
 
 function Tank:plant_mine()
+  if not self.is_active then
+    return
+  end
+
   print("plant mine!")
 end
 
@@ -133,7 +161,9 @@ end
 
 function PlayerTank:check_inputspressed(key)
   if input.anykeyequal(key, self.inputs.fire) then
-    self:fire()
+    if #self.projectiles < 5 then
+      self:fire()
+    end
   end
   if input.anykeyequal(key, self.inputs.mine) then
     self:plant_mine()
@@ -150,6 +180,14 @@ function PlayerTank:update(dt)
 
   self.rotation = rotation
 
+  local proj_idx = #self.projectiles
+  while proj_idx > 0 do
+    if self.projectiles[proj_idx].bounces >= self.projectiles[proj_idx].bounces_to_destroy then
+      table.remove(self.projectiles, proj_idx)
+    end
+    proj_idx = proj_idx - 1
+  end
+
   -- check movement collisions
 end
 
@@ -159,6 +197,6 @@ end
 local EnemyTank = Tank:extend() -- inherit Tank
 
 
-tc = { tanks = tanks, TANK_TYPES = TANK_TYPES, PlayerTank = PlayerTank, EnemyTank = EnemyTank }
+tc = { TANK_TYPES = TANK_TYPES, PlayerTank = PlayerTank, EnemyTank = EnemyTank }
 
 return tc
