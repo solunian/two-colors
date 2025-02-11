@@ -22,6 +22,7 @@ end
 t.update = function (dt)
   for _,tank in pairs(tanks) do
     tank:update(dt)
+    tank:check_projectile_collisions(tanks)
     -- if tank.tank_type == tankclass.TANK_TYPES.P1 then
     -- end
 
@@ -45,22 +46,11 @@ end
 t.draw = function ()
   -- loop through tables to draw all of them
   for _,tank in pairs(tanks) do
-    -- no mouse?
-    -- love.mouse.setVisible(false)
-    local mousex, mousey = input.get_mouse()
-
     -- tank aim line, aim crosshair
     if tank.tank_type == tankclass.TANK_TYPES.P1 then
-      -- tank
-      love.graphics.setColor(picker.lens_lcolor)
-      misc.round_rectangle(tank.x, tank.y, tank.w, tank.h, 10)
-
-      love.graphics.setColor(1, 1, 1, 0.8)
-      love.graphics.setLineWidth(1)
-      love.graphics.line(tank.x + tank.w / 2, tank.y + tank.h / 2, mousex, mousey)
-
-      love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)
-      love.graphics.rectangle("fill", mousex - 2, mousey - 10, 4, 20)
+      tank:draw(picker.lens_lcolor)
+    else
+      tank:draw(picker.lens_rcolor)
     end
 
     for _,proj in pairs(tank.projectiles) do

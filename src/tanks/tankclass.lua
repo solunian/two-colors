@@ -1,3 +1,5 @@
+local love = require("love")
+local misc = require("util.misc")
 local Object = require("lib.object")
 local input = require("util.input")
 local projectileclass = require("tanks.projectileclass")
@@ -24,7 +26,7 @@ function Tank:new()
   self.speed = 0
   self.rotation_speed = 0
   self.projectiles = {}
-  self.is_active = false
+  self.is_active = true
 end
 
 function Tank:set_pos(x, y)
@@ -65,7 +67,7 @@ function Tank:fire()
     return
   end
 
-  table.insert(self.projectiles, projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation))
+  table.insert(self.projectiles, projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation, self))
   print("fire!")
 end
 
@@ -77,11 +79,33 @@ function Tank:plant_mine()
   print("plant mine!")
 end
 
--- collider table must have x, y, w, h, rotation
-function Tank:has_collided(collider)
+-- projectile must have x, y, r
+function Tank:has_collided(projectile)
+  if misc.within(projectile.x, self.x, self.x + self.w) and misc.within(projectile.y, self.y, self.y + self.h) then
+    return true
+  end
 end
 
-function Tank:draw()
+function Tank:check_projectile_collisions(tanks)
+  if not self.is_active then
+    return
+  end
+
+  for _,tank in pairs(tanks) do
+    for _,proj in pairs(tank.projectiles) do
+      if self:has_collided(proj) and proj.is_live_round then
+        print("dead!")
+        self.is_active = false
+        return
+      end
+    end
+  end
+end
+
+function Tank:draw(color)
+  -- tank
+  love.graphics.setColor(color)
+  misc.round_rectangle(self.x, self.y, self.w, self.h, 10)
 end
 
 ----------------------
@@ -189,6 +213,22 @@ function PlayerTank:update(dt)
   end
 
   -- check movement collisions
+end
+
+
+function PlayerTank:draw(color)
+  PlayerTank.super.draw(self, color)
+
+  -- no mouse?
+  -- love.mouse.setVisible(false)
+  local mousex, mousey = input.get_mouse()
+
+  love.graphics.setColor(1, 1, 1, 0.8)
+  love.graphics.setLineWidth(1)
+  love.graphics.line(self.x + self.w / 2, self.y + self.h / 2, mousex, mousey)
+
+  love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)
+  love.graphics.rectangle("fill", mousex - 2, mousey - 10, 4, 20)
 end
 
 ---------------------
