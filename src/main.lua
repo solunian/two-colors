@@ -1,5 +1,6 @@
 local love = require("love")
 local push = require("lib.push")
+local switch = require("color.switch")
 
 local constants = require("util.constants")
 local input = require("util.input")
@@ -20,6 +21,7 @@ push:setupScreen(constants.window_width, constants.window_height, constants.wind
 local game_states = { picker, tetra, tanks }
 local state = 3
 local num_states = 3 -- for dev purposes
+local time_to_switch_colors = 5 -- color switch threshold
 
 
 local change_game = function (game_val)
@@ -40,6 +42,9 @@ end
 
 function love.update(dt)
   game_states[state].update(dt)
+  if game_states[state] ~= picker then
+    switch.update_switch_color(dt, time_to_switch_colors)
+  end
 end
 
 function love.keypressed(key, scancode, isrepeat)
