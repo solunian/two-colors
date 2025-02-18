@@ -8,7 +8,7 @@ Projectile = Object:extend()
 
 function Projectile:new(x, y, theta, parent)
   self.x, self.y = x, y
-  self.r = 10
+  self.r = 8
   self.speed = 350
   self.dx = self.speed * math.cos(theta)
   self.dy = self.speed * math.sin(theta)
@@ -21,6 +21,12 @@ function Projectile:new(x, y, theta, parent)
 end
 
 function Projectile:update(dt)
+  -- make it follow turrent when being fired out, close enough
+  if not self.is_live_round then
+    self.dx = self.speed * math.cos(self.parent.rotation)
+    self.dy = self.speed * math.sin(self.parent.rotation)
+  end
+
   -- for not killing parent on spawn
   if not self.is_live_round and not self.parent:has_collided(self) then
     self.is_live_round = true

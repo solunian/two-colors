@@ -115,6 +115,11 @@ function Tank:draw(color)
   -- tank
   love.graphics.setColor(color)
   misc.round_rectangle(self.x, self.y, self.w, self.h, 10)
+
+  local cenx, ceny = self.x + self.w / 2, self.y + self.h / 2
+  love.graphics.setLineWidth(16)
+  love.graphics.line(cenx, ceny, cenx + self.w * math.cos(self.rotation), ceny + self.w * math.sin(self.rotation))
+  love.graphics.setLineWidth(1)
 end
 
 ----------------------
@@ -202,6 +207,10 @@ function PlayerTank:check_inputspressed(key)
 end
 
 function PlayerTank:update(dt)
+  if not self.is_active then
+    return
+  end
+
   PlayerTank.super.update(self, dt)
 
   self:check_inputsdown(dt)
@@ -219,8 +228,6 @@ end
 
 
 function PlayerTank:draw(color)
-  PlayerTank.super.draw(self, color)
-
   -- no mouse?
   -- love.mouse.setVisible(false)
   if self.is_active then
@@ -233,6 +240,8 @@ function PlayerTank:draw(color)
     love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)
     love.graphics.rectangle("fill", mousex - 2, mousey - 10, 4, 20)
   end
+
+  PlayerTank.super.draw(self, color)
 end
 
 ---------------------
