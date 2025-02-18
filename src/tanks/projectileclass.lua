@@ -48,7 +48,9 @@ function Projectile:update(dt)
 end
 
 function Projectile:has_collided(other)
-  return math.sqrt(math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2)) <= self.r + other.r
+  -- check if the distance between two circles is less than the distance from two of the radii
+  -- squared both sides to not use slow sqrt function
+  return math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2) <= math.pow(self.r + other.r, 2)
 end
 
 pc = { Projectile = Projectile }

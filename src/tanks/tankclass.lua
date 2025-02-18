@@ -18,21 +18,26 @@ local TANK_TYPES = {
 ----------------
 local Tank = Object:extend()
 
-function Tank:new()
+function Tank:new(x, y, allprojectiles)
   self.tank_type = TANK_TYPES.NIL
-  self.x, self.y = 0, 0
-  self.w, self.h = 50, 50
+  self.x, self.y = x, y
+  self.w, self.h = 50, 50 -- should be square for collisions
   self.rotation = 0
   self.speed = 0
   self.rotation_speed = 0
+  self.allprojectiles = allprojectiles -- reference to allprojectiles in main game
   self.projectiles = {}
   self.is_active = true
   self.projectiles_limit = 5
 end
 
-function Tank:set_pos(x, y)
-  self.x = x
-  self.y = y
+function Tank:remove_projectile(proj)
+  for idx,p in pairs(self.projectiles) do
+    if p == proj then
+      table.remove(self.projectiles, idx)
+      return
+    end
+  end
 end
 
 function Tank:change_x(dx)
@@ -68,7 +73,9 @@ function Tank:fire()
     return
   end
 
-  table.insert(self.projectiles, projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation, self))
+  local newly_fired_proj = projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation, self)
+  table.insert(self.projectiles, newly_fired_proj)
+  table.insert(self.allprojectiles, newly_fired_proj)
   print("fire!")
 end
 
@@ -82,37 +89,26 @@ end
 
 -- projectile must have x, y, r
 function Tank:has_collided(projectile)
-  if misc.within(projectile.x, self.x, self.x + self.w) and misc.within(projectile.y, self.y, self.y + self.h) then
-    return true
-  end
+  -- give the tank a circle hitbox
+  return math.pow((self.x + self.w / 2) - projectile.x, 2) + math.pow((self.y + self.h / 2) - projectile.y, 2) <= math.pow(self.w / 2 + projectile.r, 2)
 end
 
-function Tank:check_projectile_collisions(tanks)
+function Tank:check_collisions_with_projectile()
   if not self.is_active then
     return
   end
 
-  for _,tank in pairs(tanks) do
-    -- tank with projectile collision
-    for _,proj in pairs(tank.projectiles) do
-      if self:has_collided(proj) and proj.is_live_round then
-        print("dead!")
-        self.is_active = false
-        return
-      end
+  -- tank with projectile collision
+  for _,proj in pairs(self.allprojectiles) do
+    if self:has_collided(proj) and proj.is_live_round then
+      print("dead!")
+      self.is_active = false
+      return
     end
   end
 end
 
 function Tank:update(dt)
-  -- removing projectiles to be garbage collected
-  local proj_idx = #self.projectiles
-  while proj_idx > 0 do
-    if self.projectiles[proj_idx].bounces >= self.projectiles[proj_idx].bounces_to_destroy then
-      table.remove(self.projectiles, proj_idx)
-    end
-    proj_idx = proj_idx - 1
-  end
 end
 
 function Tank:draw(color)
@@ -126,8 +122,8 @@ end
 ----------------------
 local PlayerTank = Tank:extend() -- inherit Tank
 
-function PlayerTank:new()
-  PlayerTank.super.new(self)
+function PlayerTank:new(x, y, allprojectiles)
+  PlayerTank.super.new(self, x, y, allprojectiles)
   -- set inputs??
   self.tank_type = TANK_TYPES.P1
   self.speed = 125
@@ -227,14 +223,16 @@ function PlayerTank:draw(color)
 
   -- no mouse?
   -- love.mouse.setVisible(false)
-  local mousex, mousey = input.get_mouse()
+  if self.is_active then
+    local mousex, mousey = input.get_mouse()
 
-  love.graphics.setColor(1, 1, 1, 0.8)
-  love.graphics.setLineWidth(1)
-  love.graphics.line(self.x + self.w / 2, self.y + self.h / 2, mousex, mousey)
+    love.graphics.setColor(1, 1, 1, 0.8)
+    love.graphics.setLineWidth(1)
+    love.graphics.line(self.x + self.w / 2, self.y + self.h / 2, mousex, mousey)
 
-  love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)
-  love.graphics.rectangle("fill", mousex - 2, mousey - 10, 4, 20)
+    love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)
+    love.graphics.rectangle("fill", mousex - 2, mousey - 10, 4, 20)
+  end
 end
 
 ---------------------
@@ -242,14 +240,12 @@ end
 ---------------------
 local EnemyTank = Tank:extend() -- inherit Tank
 
-function EnemyTank:new(x, y)
-  EnemyTank.super.new(self)
+function EnemyTank:new(x, y, allprojectiles)
+  EnemyTank.super.new(self, x, y, allprojectiles)
 
   self.tank_type = TANK_TYPES.E1
   self.speed = 125
 
-  self.x = x
-  self.y = y
   self.rotation_speed = 1
 end
 
@@ -271,8 +267,8 @@ function EnemyTank:update(dt)
     self:fire()
   end
 
-  self.x = self.x + self.speed * math.cos(self.rotation) * dt
-  self.y = self.y + self.speed * math.sin(self.rotation) * dt
+  self:change_x(self.speed * math.cos(self.rotation) * dt)
+  self:change_y(self.speed * math.sin(self.rotation) * dt)
 end
 
 
