@@ -111,7 +111,7 @@ b.clear_rows = function ()
   end
 end
 
-b.draw = function ()
+b.draw = function (xoffset, yoffset)
   local filled_color = picker.lens_rcolor
   local active_color = picker.lens_lcolor
 
@@ -120,13 +120,13 @@ b.draw = function ()
     for col=1,b.w do
       if b.pf[row][col] == b.ty.FILLED then
         love.graphics.setColor(filled_color)
-        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
+        love.graphics.rectangle("fill", xoffset + (col - 1) * b.ss, yoffset + (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.ACTIVE then
         love.graphics.setColor(active_color);
-        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss)
+        love.graphics.rectangle("fill", xoffset + (col - 1) * b.ss, yoffset + (row - 1) * b.ss, b.ss, b.ss)
       elseif b.pf[row][col] == b.ty.SHADOW then
         love.graphics.setColor(active_color[1], active_color[2], active_color[3], 0.8);
-        love.graphics.rectangle("fill", (col - 1) * b.ss, (row - 1) * b.ss, b.ss, b.ss);
+        love.graphics.rectangle("fill", xoffset + (col - 1) * b.ss, yoffset + (row - 1) * b.ss, b.ss, b.ss);
       end
     end
   end
@@ -135,10 +135,10 @@ b.draw = function ()
   for row=b.sh,b.sh+b.h do -- extra one for bottom border
     love.graphics.setLineWidth(1)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.line(0, row * b.ss, b.w * b.ss, row * b.ss)
+    love.graphics.line(xoffset, yoffset + row * b.ss, xoffset + b.w * b.ss, yoffset + row * b.ss)
   end
   for col=0,b.w do -- extra one for bottom border
-    love.graphics.line(col * b.ss, 0, col * b.ss, (b.h + b.sh) * b.ss)
+    love.graphics.line(xoffset + col * b.ss, yoffset, xoffset + col * b.ss, yoffset + (b.h + b.sh) * b.ss)
   end
 end
 

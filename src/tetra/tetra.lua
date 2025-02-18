@@ -1,4 +1,5 @@
 local math = require("math")
+local constants = require("util.constants")
 
 local input = require("util.input")
 local misc = require("util.misc")
@@ -301,8 +302,10 @@ tetra.keypressed = function (key, scancode, isrepeat)
 end
 
 tetra.draw = function ()
-  board.draw()
-  display.draw()
+  -- top left corner of board
+  local cenx, ceny = (constants.window_width - board.ss * (board.w)) / 2, (constants.window_height - board.ss * (board.h + board.sh)) / 2
+  board.draw(cenx, ceny)
+  display.draw(cenx, ceny)
 end
 
 return tetra
