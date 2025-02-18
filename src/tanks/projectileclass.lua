@@ -1,5 +1,6 @@
 local Object = require("lib.object")
 local constants = require("util.constants")
+local misc      = require("util.misc")
 
 local pc = {} -- projectile class
 
@@ -44,6 +45,10 @@ function Projectile:update(dt)
 
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
+end
+
+function Projectile:has_collided(other)
+  return math.sqrt(math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2)) <= self.r + other.r
 end
 
 pc = { Projectile = Projectile }

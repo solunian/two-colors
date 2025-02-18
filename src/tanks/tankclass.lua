@@ -27,6 +27,7 @@ function Tank:new()
   self.rotation_speed = 0
   self.projectiles = {}
   self.is_active = true
+  self.projectiles_limit = 5
 end
 
 function Tank:set_pos(x, y)
@@ -63,7 +64,7 @@ function Tank:change_y(dy)
 end
 
 function Tank:fire()
-  if not self.is_active then
+  if not self.is_active or #self.projectiles >= self.projectiles_limit then
     return
   end
 
@@ -92,6 +93,7 @@ function Tank:check_projectile_collisions(tanks)
   end
 
   for _,tank in pairs(tanks) do
+    -- tank with projectile collision
     for _,proj in pairs(tank.projectiles) do
       if self:has_collided(proj) and proj.is_live_round then
         print("dead!")
@@ -99,6 +101,17 @@ function Tank:check_projectile_collisions(tanks)
         return
       end
     end
+  end
+end
+
+function Tank:update(dt)
+  -- removing projectiles to be garbage collected
+  local proj_idx = #self.projectiles
+  while proj_idx > 0 do
+    if self.projectiles[proj_idx].bounces >= self.projectiles[proj_idx].bounces_to_destroy then
+      table.remove(self.projectiles, proj_idx)
+    end
+    proj_idx = proj_idx - 1
   end
 end
 
@@ -185,9 +198,7 @@ end
 
 function PlayerTank:check_inputspressed(key)
   if input.anykeyequal(key, self.inputs.fire) then
-    if #self.projectiles < 5 then
-      self:fire()
-    end
+    self:fire()
   end
   if input.anykeyequal(key, self.inputs.mine) then
     self:plant_mine()
@@ -195,6 +206,8 @@ function PlayerTank:check_inputspressed(key)
 end
 
 function PlayerTank:update(dt)
+  PlayerTank.super.update(self, dt)
+
   self:check_inputsdown(dt)
 
   -- input movement
@@ -204,13 +217,6 @@ function PlayerTank:update(dt)
 
   self.rotation = rotation
 
-  local proj_idx = #self.projectiles
-  while proj_idx > 0 do
-    if self.projectiles[proj_idx].bounces >= self.projectiles[proj_idx].bounces_to_destroy then
-      table.remove(self.projectiles, proj_idx)
-    end
-    proj_idx = proj_idx - 1
-  end
 
   -- check movement collisions
 end
@@ -235,6 +241,39 @@ end
 -- class EnemyTank -- 
 ---------------------
 local EnemyTank = Tank:extend() -- inherit Tank
+
+function EnemyTank:new(x, y)
+  EnemyTank.super.new(self)
+
+  self.tank_type = TANK_TYPES.E1
+  self.speed = 125
+
+  self.x = x
+  self.y = y
+  self.rotation_speed = 1
+end
+
+local time_count = 0
+local move_threshold_time = 1
+
+function EnemyTank:update(dt)
+  EnemyTank.super.update(self, dt)
+
+  if not self.is_active then
+    return
+  end
+
+  time_count = time_count + dt
+  self.rotation = self.rotation + dt * self.rotation_speed
+
+  if time_count >= move_threshold_time then
+    time_count = 0
+    self:fire()
+  end
+
+  self.x = self.x + self.speed * math.cos(self.rotation) * dt
+  self.y = self.y + self.speed * math.sin(self.rotation) * dt
+end
 
 
 tc = { TANK_TYPES = TANK_TYPES, PlayerTank = PlayerTank, EnemyTank = EnemyTank }
