@@ -251,9 +251,10 @@ tetra.keypressed = function (key, scancode, isrepeat)
 
   -- game setting inputs
 
-  if input.anykeyequal(key, pausek) then -- pause / play game
-    board.active = not board.active
-  end
+  -- global pause instead
+  -- if input.anykeyequal(key, pausek) then -- pause / play game
+  --   board.active = not board.active
+  -- end
 
   if input.anykeyequal(key, resetk) then -- reset / start game
     restart_tetra()

@@ -4,6 +4,10 @@ local csw = {} -- color_switch
 
 csw.elapsed_time = 0
 
+csw.reset_elapsed_time = function ()
+  csw.elapsed_time = 0
+end
+
 csw.update_switch_color = function (dt, threshold)
   csw.elapsed_time = csw.elapsed_time + dt
   if csw.elapsed_time >= threshold then

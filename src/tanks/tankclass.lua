@@ -4,6 +4,7 @@ local Object = require("lib.object")
 local input = require("util.input")
 local projectileclass = require("tanks.projectileclass")
 local constants       = require("util.constants")
+local gamestate       = require("util.gamestate")
 
 local tc = {} -- tank class
 
@@ -230,7 +231,8 @@ end
 function PlayerTank:draw(color)
   -- no mouse?
   -- love.mouse.setVisible(false)
-  if self.is_active then
+  if self.is_active and not gamestate.is_paused then
+    -- shooting guide line
     local mousex, mousey = input.get_mouse()
 
     love.graphics.setColor(1, 1, 1, 0.8)
