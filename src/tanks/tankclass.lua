@@ -248,6 +248,9 @@ end
 ---------------------
 local EnemyTank = Tank:extend() -- inherit Tank
 
+local fire_threshold_time = 1.5
+local starting_fire_time_offset = fire_threshold_time
+
 function EnemyTank:new(x, y, allprojectiles)
   EnemyTank.super.new(self, x, y, allprojectiles)
 
@@ -257,6 +260,10 @@ function EnemyTank:new(x, y, allprojectiles)
   -- for cpu movement!!!
   self.move_direction = 0
   self.should_move = false
+
+  -- for auto fire
+  self.fire_time_elapsed = starting_fire_time_offset
+  starting_fire_time_offset = (starting_fire_time_offset + 0.5) % fire_threshold_time
 end
 
 
@@ -267,10 +274,19 @@ function EnemyTank:update(dt)
     return
   end
 
+  if self.fire_time_elapsed >= fire_threshold_time then
+    self:fire()
+    self.fire_time_elapsed = 0
+  end
+  self.fire_time_elapsed = self.fire_time_elapsed + dt
+
   -- cpu movement
   if self.should_move then
     self:change_x(self.speed * math.cos(self.move_direction) * dt)
     self:change_y(self.speed * math.sin(self.move_direction) * dt)
+  -- else
+  --   self:change_x(self.speed * math.cos(self.move_direction) * dt)
+  --   self:change_y(self.speed * math.sin(self.move_direction) * dt)
   end
 end
 
