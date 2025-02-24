@@ -6,12 +6,13 @@ local pc = {} -- projectile class
 
 Projectile = Object:extend()
 
-function Projectile:new(x, y, theta, parent)
+function Projectile:new(x, y, direction, parent)
   self.x, self.y = x, y
   self.r = 8
   self.speed = 350
-  self.dx = self.speed * math.cos(theta)
-  self.dy = self.speed * math.sin(theta)
+  self.direction = direction
+  self.dx = self.speed * math.cos(direction)
+  self.dy = self.speed * math.sin(direction)
   self.bounces = 0
   self.bounces_to_destroy = 2
 
@@ -51,6 +52,7 @@ function Projectile:update(dt)
 
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
+  self.direction = math.atan2(self.dy, self.dx)
 end
 
 function Projectile:has_collided(other)

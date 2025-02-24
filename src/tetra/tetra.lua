@@ -26,7 +26,7 @@ local SDF = 20 -- soft drop factor, increments the gravity_duration by sdf * 4 t
 -- custom key controls
 -- no input conflicts allowed!!! or else undefined behavior
 local resetk = { "r" }
-local pausek = { "p" }
+-- local pausek = { "p" }
 local rightk = { "right" }
 local leftk = { "left" }
 local softdropk = { "down" }

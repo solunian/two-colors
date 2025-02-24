@@ -1,5 +1,5 @@
 local state = {}
 
-state.is_paused = true
+state.is_paused = false
 
 return state

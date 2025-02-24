@@ -1,9 +1,11 @@
 local love = require("love")
 local picker = require("color.picker")
 local tankclass = require("tanks.tankclass")
+local MinHeap = require("lib.minheap")
 
 local t = {}
 
+local player
 local tanks = {} -- all pointers to tanks
 local projectiles = {} -- all pointers to projectiles, each tank also points to projectiles, so must remove those pointers to drop to garbage
 local mines = {}
@@ -18,7 +20,8 @@ local function level1()
   table.insert(tanks, tankclass.EnemyTank(200, 300, projectiles))
   table.insert(tanks, tankclass.EnemyTank(400, 100, projectiles))
   table.insert(tanks, tankclass.EnemyTank(500, 400, projectiles))
-  table.insert(tanks, tankclass.PlayerTank(100, 100, projectiles))
+  player = tankclass.PlayerTank(100, 100, projectiles)
+  table.insert(tanks, player)
 end
 
 
@@ -29,8 +32,41 @@ end
 
 t.update = function (dt)
   for _,tank in pairs(tanks) do
-    tank:update(dt)
-    tank:check_collisions_with_projectile()
+    if tank.is_active then -- only update if is_active
+
+      -- enemy movement predictions trying to avoid projectiles
+      -- naive solution: make movement perpendicular to projectile direction, pick movement based on closest one
+      if tank.tank_type == tankclass.TANK_TYPES.E1 then
+        tank.rotation = math.atan2((player.y + player.h / 2) - (tank.y + tank.h / 2), (player.x + player.w / 2) - (tank.x + tank.w / 2))
+
+        -- push all projectiles into a priority queue based on their distance away from tank. closer projectiles are checked first (min distance)
+        local closest_projs = MinHeap.new()
+        for _,proj in pairs(projectiles) do
+          closest_projs:push(proj, tank:distance(proj))
+        end
+
+        while not closest_projs:isempty() do
+          local curr = closest_projs:peek()
+          if tank:check_intercept(curr) then
+            break
+          else
+            closest_projs:pop()
+          end
+
+        end
+
+        -- should only move if has incoming projectiles. it would have all popped out of binheap
+        if closest_projs:isempty() then
+          tank.should_move = false
+        else
+          tank.should_move = true
+        end
+      end
+
+      tank:update(dt)
+      tank:check_collisions_with_projectile()
+
+    end
   end
 
   for _,proj in pairs(projectiles) do
@@ -65,8 +101,6 @@ t.update = function (dt)
       end
       i = i + 1
     end
-
-  -- check positions
 end
 
 t.keypressed = function (key, scancode, isrepeat)

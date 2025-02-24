@@ -25,7 +25,7 @@ function Tank:new(x, y, allprojectiles)
   self.w, self.h = 50, 50 -- should be square for collisions
   self.rotation = 0
   self.speed = 0
-  self.rotation_speed = 0
+  -- self.rotation_speed = 0
   self.allprojectiles = allprojectiles -- reference to allprojectiles in main game
   self.projectiles = {}
   self.is_active = true
@@ -132,7 +132,7 @@ function PlayerTank:new(x, y, allprojectiles)
   PlayerTank.super.new(self, x, y, allprojectiles)
   -- set inputs??
   self.tank_type = TANK_TYPES.P1
-  self.speed = 125
+  self.speed = 150
   -- up, left, down, right, fire, plant mine
   self.inputs = {
     up = {"w"},
@@ -222,9 +222,6 @@ function PlayerTank:update(dt)
   local rotation = math.atan2(dy, dx)
 
   self.rotation = rotation
-
-
-  -- check movement collisions
 end
 
 
@@ -257,11 +254,11 @@ function EnemyTank:new(x, y, allprojectiles)
   self.tank_type = TANK_TYPES.E1
   self.speed = 125
 
-  self.rotation_speed = 1
+  -- for cpu movement!!!
+  self.move_direction = 0
+  self.should_move = false
 end
 
-local time_count = 0
-local move_threshold_time = 1
 
 function EnemyTank:update(dt)
   EnemyTank.super.update(self, dt)
@@ -270,16 +267,47 @@ function EnemyTank:update(dt)
     return
   end
 
-  time_count = time_count + dt
-  self.rotation = self.rotation + dt * self.rotation_speed
+  -- cpu movement
+  if self.should_move then
+    self:change_x(self.speed * math.cos(self.move_direction) * dt)
+    self:change_y(self.speed * math.sin(self.move_direction) * dt)
+  end
+end
 
-  if time_count >= move_threshold_time then
-    time_count = 0
-    self:fire()
+-- for cpu movment
+-- checks and returns if projectile path will intercept the "arc of tank", changes tank direction by strategy below
+---@return boolean
+function EnemyTank:check_intercept(proj)
+  local cenx, ceny = self.x + self.w / 2, self.y + self.h / 2
+  local avoid_radius = self.w -- how far from the center should the tank detect projectiles
+
+  -- "top" and "bottom" are just the points at pi/2 and -pi/2 degrees from the perspective of the projectile
+  local top_point = {cenx + avoid_radius * math.cos(proj.direction + math.pi / 2), ceny + avoid_radius * math.sin(proj.direction + math.pi / 2)}
+  local bottom_point = {cenx + avoid_radius * math.cos(proj.direction - math.pi / 2), ceny + avoid_radius * math.sin(proj.direction - math.pi / 2)}
+
+  -- angles from the top point/bottom point when facing from the projectile to the tank
+  local top_angle = math.atan2(top_point[2] - proj.y, top_point[1] - proj.x)
+  local bottom_angle = math.atan2(bottom_point[2] - proj.y, bottom_point[1] - proj.x)
+
+  local g_angle = math.max(top_angle, bottom_angle) -- greater angle
+  local l_angle = math.min(top_angle, bottom_angle) -- less angle
+
+  local will_intercept = misc.within(proj.direction, l_angle, g_angle)
+  if will_intercept then
+    -- checks which side is the direction closer to, should move away from the closer side
+    if math.abs(g_angle - proj.direction) <= math.abs(l_angle - proj.direction) then
+      self.move_direction = proj.direction - math.pi / 2
+    else
+      self.move_direction = proj.direction + math.pi / 2
+    end
   end
 
-  self:change_x(self.speed * math.cos(self.rotation) * dt)
-  self:change_y(self.speed * math.sin(self.rotation) * dt)
+  return will_intercept
+end
+
+-- basic distance from projectiles. used for cpu movement
+function EnemyTank:distance(proj)
+  return math.sqrt(math.pow(self.x + self.w / 2 - proj.x, 2) + math.pow(self.y + self.h / 2 - proj.y, 2))
 end
 
 
