@@ -20,7 +20,7 @@ local function level1()
   table.insert(tanks, tankclass.EnemyTank(200, 300, projectiles))
   table.insert(tanks, tankclass.EnemyTank(400, 100, projectiles))
   table.insert(tanks, tankclass.EnemyTank(500, 400, projectiles))
-  player = tankclass.PlayerTank(100, 100, projectiles)
+  player = tankclass.PlayerTank(600, 300, projectiles)
   table.insert(tanks, player)
 end
 

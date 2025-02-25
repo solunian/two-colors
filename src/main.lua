@@ -4,6 +4,7 @@ local switch = require("color.switch")
 
 local constants = require("util.constants")
 local input = require("util.input")
+local title = require("title.title")
 local picker = require("color.picker")
 local tetra = require("tetra.tetra")
 local tanks = require("tanks.tanks")
@@ -11,9 +12,9 @@ local gamestate = require("util.gamestate")
 
 
 -- all game_states must have functions: load(), update(dt), keypressed(key, scancode, isrepeat), draw()
-local game_states = { picker, tetra, tanks }
-local state = 3
-local num_states = 3 -- for dev purposes
+local game_states = { title, picker, tetra, tanks }
+local state = 1
+local num_states = 4 -- for dev purposes
 local time_to_switch_colors = 5 -- color switch threshold time
 
 
@@ -42,7 +43,7 @@ function love.load()
 end
 
 function love.update(dt)
-  if not gamestate.is_paused then
+  if not gamestate.is_paused or state == 1 then -- dont pause the title page animation update
     game_states[state].update(dt)
 
     -- switch timer

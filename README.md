@@ -3,11 +3,10 @@
 A game collection that uses only two main colors. 
 Designed to help people correct "lazy eye" (amblyopia) by using those red-blue tinted glasses (like for 3D movies).
 
-## Games Completed
+## Minigames
 
 - [x] tetra
-- [ ] tanks from wii play: wasd to move, mouse/click to fire bullets, space bar for dropping a mine
-- [ ] getting chased
+- [ ] tanks from wii play: wasd to move, mouse to aim, spacebar to fire
 
 ## Dev Notes
 
