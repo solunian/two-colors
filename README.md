@@ -13,9 +13,20 @@ Designed to help people correct "lazy eye" (amblyopia) by using those red-blue t
 
 ## Dev Notes
 
+### Project Structure
+
+- main loop in main.lua, game config in conf.lua
+- each part of game is separated into folders (src/tetra, src/tanks, etc.)
+- libs (that i didn't write) in (src/lib)
+- utils (that i did write) in (src/util)
+
+### Running
+
+Makefile has all the "necessary" commands compiled together. Use `make` to run the game locally without building it to be distributed.
+
 ### Build
 
-Refer to the love2d docs for game distribution [here](https://love2d.org/wiki/Game_Distribution)!
+In the Makefile, but you can also refer to the love2d docs for game distribution [here](https://love2d.org/wiki/Game_Distribution)!
 
 ### Color
 
@@ -31,6 +42,9 @@ Switch colors around randomly in the middle of playing a game.
 - [push](https://github.com/Ulydev/push): for aspect ratio windowing stuff
 - [classic](https://github.com/rxi/classic): for simple oop stuff, renamed to lib/object
 - [lume](https://github.com/rxi/lume): serialization for save data
+- [minheap](https://gist.github.com/H2NCH2COOH/1f929775db0a355ca6b6088a4662fe95): priority queue
+
+> These are all sitting in src/lib
 
 ### Start Screen
 
@@ -51,5 +65,5 @@ More notes [here](https://github.com/solunian/two-colors/tree/main/src/tetra/REA
 
 ### Tanks
 
-controls: wasd to move, mouse to aim, spacebar to fire
-kinda a lot of math for tank auto movement
+- controls: wasd to move, mouse to aim, spacebar to fire
+- kinda some weird geometry math for tank auto movement
