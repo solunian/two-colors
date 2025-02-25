@@ -1,12 +1,15 @@
 # two colors :red_circle: :large_blue_circle:
 
-A game collection that uses only two main colors. 
+A game collection that uses two main colors. 
 Designed to help people correct "lazy eye" (amblyopia) by using those red-blue tinted glasses (like for 3D movies).
 
-## Minigames
+## Parts
 
-- [x] tetra
-- [ ] tanks from wii play: wasd to move, mouse to aim, spacebar to fire
+- start screen
+- menu/options
+- color matching/auto switch
+- tetra
+- tanks from wii play
 
 ## Dev Notes
 
@@ -29,6 +32,11 @@ Switch colors around randomly in the middle of playing a game.
 - [classic](https://github.com/rxi/classic): for simple oop stuff, renamed to lib/object
 - [lume](https://github.com/rxi/lume): serialization for save data
 
+### Start Screen
+
+- drawing the intersection of two cirlces efficiently.
+- title screen image gets blocked out by the bouncing red and blue circles.
+
 ### Tetra
 
 Recreating the famous stacking game is more complex than one might think.
@@ -43,4 +51,5 @@ More notes [here](https://github.com/solunian/two-colors/tree/main/src/tetra/REA
 
 ### Tanks
 
-Coding rn!
+controls: wasd to move, mouse to aim, spacebar to fire
+kinda a lot of math for tank auto movement
