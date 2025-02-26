@@ -34,6 +34,19 @@ t.load = function ()
 end
 
 t.update = function (dt)
+  local only_player_active = player.is_active
+  for _,v in pairs(tanks) do
+    if v.tank_type ~= tankclass.TANK_TYPES.P1 and v.is_active then
+      only_player_active = false
+      break
+    end
+  end
+
+  if only_player_active or not player.is_active then -- either player is active and other tanks are not, or player is not active
+    reset_level()
+    random3()
+  end
+
   for _,tank in pairs(tanks) do
     if tank.is_active then -- only update if is_active
 
