@@ -13,6 +13,10 @@ Designed to help people correct "lazy eye" (amblyopia) by using those red-blue t
 
 ## Dev Notes
 
+### Installation
+
+Clone the repo, then install the love2d game engine for your system from https://love2d.org/!
+
 ### Project Structure
 
 - main loop in main.lua, game config in conf.lua
@@ -35,7 +39,7 @@ Looking through a pure blue filter would only show blue light, and same with eve
 
 Match the opposite color into the black background.
 
-Switch colors around randomly in the middle of playing a game.
+Switches colors around randomly in the middle of playing a game.
 
 ### Libs Used
 
