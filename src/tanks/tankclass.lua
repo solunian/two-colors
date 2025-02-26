@@ -3,8 +3,9 @@ local misc = require("util.misc")
 local Object = require("lib.object")
 local input = require("util.input")
 local projectileclass = require("tanks.projectileclass")
-local constants       = require("util.constants")
-local gamestate       = require("util.gamestate")
+local constants = require("util.constants")
+local gamestate = require("util.gamestate")
+local picker = require("color.picker")
 
 local tc = {} -- tank class
 
@@ -21,8 +22,8 @@ local Tank = Object:extend()
 
 function Tank:new(x, y, allprojectiles)
   self.tank_type = TANK_TYPES.NIL
-  self.x, self.y = x, y
   self.w, self.h = 50, 50 -- should be square for collisions
+  self.x, self.y = math.random(self.w / 2, constants.window_width - self.w / 2), math.random(self.h / 2, constants.window_height - self.h / 2)
   self.rotation = 0
   self.speed = 0
   -- self.rotation_speed = 0
@@ -113,14 +114,23 @@ function Tank:update(dt)
 end
 
 function Tank:draw(color)
-  -- tank
-  love.graphics.setColor(color)
-  misc.round_rectangle(self.x, self.y, self.w, self.h, 10)
+  if self.is_active then
+    -- tank
+    love.graphics.setColor(color)
+    misc.round_rectangle(self.x, self.y, self.w, self.h, 10)
 
-  local cenx, ceny = self.x + self.w / 2, self.y + self.h / 2
-  love.graphics.setLineWidth(16)
-  love.graphics.line(cenx, ceny, cenx + self.w * math.cos(self.rotation), ceny + self.w * math.sin(self.rotation))
-  love.graphics.setLineWidth(1)
+    local cenx, ceny = self.x + self.w / 2, self.y + self.h / 2
+    love.graphics.setLineWidth(16)
+    love.graphics.line(cenx, ceny, cenx + self.w * math.cos(self.rotation), ceny + self.w * math.sin(self.rotation))
+    love.graphics.setLineWidth(1)
+  else -- dead tank
+      -- calc all colors
+    local c1 = picker.lens_rcolor
+    local c2 = picker.lens_lcolor
+    local inverted_color = {1 - (c1[1] + c2[1]) / 2, 1 - (c1[2] + c2[2]) / 2, 1 - (c1[3] + c2[3]) / 2}
+    love.graphics.setColor(inverted_color) -- all set to the same color. inverted?? just for hold, queue
+    love.graphics.circle("fill", self.x + self.w / 2, self.y + self.h / 2, 10)
+  end
 end
 
 ----------------------

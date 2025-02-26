@@ -59,7 +59,9 @@ function love.keypressed(key, scancode, isrepeat)
     change_game(state % num_states + 1) -- should be % by the number of states
     switch.reset_elapsed_time()
   end
-  if input.anykeyequal(key, {"escape"}) then
+
+  -- no pause on title or picker
+  if state ~= 1 and state ~= 2 and input.anykeyequal(key, {"escape"}) then
     gamestate.is_paused = not gamestate.is_paused
   end
 
@@ -74,8 +76,8 @@ function love.draw()
   game_states[state].draw()
 
   -- for keeping track of bounding box for game window size
-  love.graphics.setColor(1, 1, 1)
-  love.graphics.rectangle("line", 0, 0, constants.window_width, constants.window_height)
+  -- love.graphics.setColor(1, 1, 1)
+  -- love.graphics.rectangle("line", 0, 0, constants.window_width, constants.window_height)
 
   push:finish()
 end

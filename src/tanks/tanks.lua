@@ -2,6 +2,7 @@ local love = require("love")
 local picker = require("color.picker")
 local tankclass = require("tanks.tankclass")
 local MinHeap = require("lib.minheap")
+local constants = require("util.constants")
 
 local t = {}
 
@@ -16,18 +17,20 @@ local function reset_level()
   mines = {}
 end
 
-local function level1()
-  table.insert(tanks, tankclass.EnemyTank(200, 300, projectiles))
-  table.insert(tanks, tankclass.EnemyTank(400, 100, projectiles))
-  table.insert(tanks, tankclass.EnemyTank(500, 400, projectiles))
-  player = tankclass.PlayerTank(600, 300, projectiles)
+local function random3()
+  -- x, y doesnt matter cuz i coded it to be rondom now...
+  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
+  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
+  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
+
+  player = tankclass.PlayerTank(constants.window_width / 2, constants.window_height / 2, projectiles)
   table.insert(tanks, player)
 end
 
 
 t.load = function ()
   reset_level()
-  level1()
+  random3()
 end
 
 t.update = function (dt)
@@ -107,7 +110,7 @@ t.keypressed = function (key, scancode, isrepeat)
   if key == "r" then
     print("=====")
     reset_level()
-    level1()
+    random3()
   end
 
   for _,tank in pairs(tanks) do
