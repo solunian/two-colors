@@ -24,7 +24,7 @@ local Tank = Object:extend()
 function Tank:new(x, y, allprojectiles)
   self.tank_type = TANK_TYPES.NIL
   self.w, self.h = 50, 50 -- should be square for collisions
-  self.x, self.y = math.random(self.w / 2, constants.window_width - self.w / 2), math.random(self.h / 2, constants.window_height - self.h / 2)
+  self.x, self.y = math.random(0, constants.window_width - self.w), math.random(0, constants.window_height - self.h)
   self.rotation = 0
   self.speed = 0
   -- self.rotation_speed = 0
