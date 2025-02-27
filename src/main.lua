@@ -1,6 +1,7 @@
 local love = require("love")
 local push = require("lib.push")
 local switch = require("color.switch")
+local audio  = require("util.audio")
 
 local constants = require("util.constants")
 local input = require("util.input")
@@ -31,6 +32,7 @@ end
 -- love functions!
 
 function love.load()
+  audio.load()
   push:setupScreen(constants.window_width, constants.window_height, constants.window_width, constants.window_height,
     {
       fullscreen = false,
@@ -43,7 +45,16 @@ function love.load()
 end
 
 function love.update(dt)
-  if not gamestate.is_paused or state == 1 then -- dont pause the title page animation update
+
+  -- tetra theme playing
+  if game_states[state] == tetra and not audio.tetra_sounds.theme:isPlaying() and not gamestate.is_paused then
+    audio.tetra_sounds.theme:play()
+  end
+  if (game_states[state] ~= tetra and audio.tetra_sounds.theme:isPlaying()) or gamestate.is_paused then
+    audio.tetra_sounds.theme:pause()
+  end
+
+  if not gamestate.is_paused or game_states[state] == title then -- dont pause the title page animation update
     game_states[state].update(dt)
 
     -- switch timer

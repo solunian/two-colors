@@ -1,6 +1,7 @@
 local love = require("love")
 local table = require("table")
 local picker = require("color.picker")
+local audio  = require("util.audio")
 
 local b = {}
 
@@ -82,11 +83,13 @@ end
 
 -- called only at hard_drop
 b.clear_rows = function ()
+  local count = 0
   local checkrow = b.sh + b.h
   -- for loop variable cannot be changed in loop!
   while checkrow >= 1 do
     if is_row_full(checkrow) then
       -- clear full row
+      count = count + 1
       for i=1,b.w do
         if b.pf[checkrow][i] ~= b.ty.ACTIVE then
           b.pf[checkrow][i] = b.ty.EMPTY
@@ -108,6 +111,20 @@ b.clear_rows = function ()
     end
     -- decrement, pushing the check row up the playfield
     checkrow = checkrow - 1
+  end
+
+  if count == 1 then
+    audio.tetra_sounds.single:stop()
+    audio.tetra_sounds.single:play()
+  elseif count == 2 then
+    audio.tetra_sounds.double:stop()
+    audio.tetra_sounds.double:play()
+  elseif count == 3 then
+    audio.tetra_sounds.triple:stop()
+    audio.tetra_sounds.triple:play()
+  elseif count == 4 then
+    audio.tetra_sounds.quad:stop()
+    audio.tetra_sounds.quad:play()
   end
 end
 
