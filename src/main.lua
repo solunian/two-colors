@@ -54,6 +54,14 @@ function love.update(dt)
     audio.tetra_sounds.theme:pause()
   end
 
+  -- tanks theme playing
+  if game_states[state] == tanks and not audio.tanks_sounds.theme:isPlaying() and not gamestate.is_paused then
+    audio.tanks_sounds.theme:play()
+  end
+  if (game_states[state] ~= tanks and audio.tanks_sounds.theme:isPlaying()) or gamestate.is_paused then
+    audio.tanks_sounds.theme:pause()
+  end
+
   if not gamestate.is_paused or game_states[state] == title then -- dont pause the title page animation update
     game_states[state].update(dt)
 

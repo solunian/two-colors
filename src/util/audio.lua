@@ -7,6 +7,12 @@ local audio = {
     triple = nil,
     quad = nil,
     theme = nil,
+  },
+  tanks_sounds = {
+    theme = nil,
+    fire = nil,
+    playerdie = nil,
+    enemydie = nil
   }
 }
 
@@ -17,8 +23,15 @@ function audio.load()
   audio.tetra_sounds.triple = love.audio.newSource("assets/audio/triple.wav", "static")
   audio.tetra_sounds.quad = love.audio.newSource("assets/audio/quad.wav", "static")
 
-  -- fired off in 
-  audio.tetra_sounds.theme = love.audio.newSource("assets/audio/tetris_theme_hard.mp3", "stream")
+  -- fired off in main.lua
+  audio.tetra_sounds.theme = love.audio.newSource("assets/audio/tetra_theme_hard.mp3", "stream")
+
+  -- tanks
+  audio.tanks_sounds.theme = love.audio.newSource("assets/audio/tanks_theme.mp3", "stream")
+  audio.tanks_sounds.fire = love.audio.newSource("assets/audio/tankfire.wav", "static")
+  audio.tanks_sounds.playerdie = love.audio.newSource("assets/audio/playerdie.wav", "static")
+  audio.tanks_sounds.enemydie = love.audio.newSource("assets/audio/enemydie.wav", "static")
+
 end
 
 return audio

@@ -6,6 +6,7 @@ local projectileclass = require("tanks.projectileclass")
 local constants = require("util.constants")
 local gamestate = require("util.gamestate")
 local picker = require("color.picker")
+local audio  = require("util.audio")
 
 local tc = {} -- tank class
 
@@ -75,6 +76,11 @@ function Tank:fire()
     return
   end
 
+  if self.tank_type == TANK_TYPES.P1 then
+    audio.tanks_sounds.fire:stop()
+    audio.tanks_sounds.fire:play()
+  end
+
   local newly_fired_proj = projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation, self)
   table.insert(self.projectiles, newly_fired_proj)
   table.insert(self.allprojectiles, newly_fired_proj)
@@ -105,6 +111,14 @@ function Tank:check_collisions_with_projectile()
     if self:has_collided(proj) and proj.is_live_round then
       print("dead!")
       self.is_active = false
+
+      if self.tank_type == TANK_TYPES.E1 then
+        audio.tanks_sounds.enemydie:stop()
+        audio.tanks_sounds.enemydie:play()
+      elseif self.tank_type == TANK_TYPES.P1 then
+        audio.tanks_sounds.playerdie:stop()
+        audio.tanks_sounds.playerdie:play()
+      end
       return
     end
   end
