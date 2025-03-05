@@ -1,6 +1,9 @@
 local love = require("love")
 
 local audio = {
+  game_sounds = {
+    theme = nil,
+  },
   tetra_sounds = {
     single = nil,
     double = nil,
@@ -17,6 +20,9 @@ local audio = {
 }
 
 function audio.load()
+  -- overall game
+  audio.game_sounds.theme = love.audio.newSource("assets/audio/two_colors_theme.mp3", "stream")
+
   -- these are fired off in board. when clear_rows is called
   audio.tetra_sounds.single = love.audio.newSource("assets/audio/single.wav", "static")
   audio.tetra_sounds.double = love.audio.newSource("assets/audio/double.wav", "static")

@@ -45,6 +45,13 @@ function love.load()
 end
 
 function love.update(dt)
+  -- game theme overall
+  if (game_states[state] == title or game_states[state] == picker) and not audio.tetra_sounds.theme:isPlaying() and not gamestate.is_paused then
+    audio.game_sounds.theme:play()
+  end
+  if ((game_states[state] ~= title or game_states[state] ~= picker) and audio.tetra_sounds.theme:isPlaying()) or gamestate.is_paused then
+    audio.game_sounds.theme:pause()
+  end
 
   -- tetra theme playing
   if game_states[state] == tetra and not audio.tetra_sounds.theme:isPlaying() and not gamestate.is_paused then
