@@ -10,6 +10,7 @@ local player
 local tanks = {} -- all pointers to tanks
 local projectiles = {} -- all pointers to projectiles, each tank also points to projectiles, so must remove those pointers to drop to garbage
 local mines = {}
+local enemy_spawn_count = 1 -- level essentially
 
 local function reset_level()
   tanks = {}
@@ -17,12 +18,26 @@ local function reset_level()
   mines = {}
 end
 
-local function random3()
-  -- x, y doesnt matter cuz i coded it to be rondom now...
-  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
-  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
-  table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
+-- before leveling up and spawn_enemies
+local function remove_enemies()
+  -- remove all enemy tanks
+  local i = #tanks
+  while i > 0 do
+    if tanks[i].tank_type == tankclass.TANK_TYPES.E1 then
+      table.remove(tanks, i)
+    end
+    i = i - 1
+  end
+end
 
+local function spawn_enemies()
+  -- x, y doesnt matter cuz i coded it to be rondom now...
+  for _=1,enemy_spawn_count do
+    table.insert(tanks, tankclass.EnemyTank(0, 0, projectiles))
+  end
+end
+
+local function spawn_player()
   player = tankclass.PlayerTank(constants.window_width / 2, constants.window_height / 2, projectiles)
   table.insert(tanks, player)
 end
@@ -30,7 +45,8 @@ end
 
 t.load = function ()
   reset_level()
-  random3()
+  spawn_enemies()
+  spawn_player()
 end
 
 t.update = function (dt)
@@ -42,9 +58,22 @@ t.update = function (dt)
     end
   end
 
-  if only_player_active or not player.is_active then -- either player is active and other tanks are not, or player is not active
+  if only_player_active then -- either player is active and other tanks are not
+    -- increase difficulty level
+    enemy_spawn_count = enemy_spawn_count + 1
+    remove_enemies()
+    spawn_enemies()
+
+  elseif not player.is_active then -- player is not active
+
+    -- decrease difficulty level
+    if enemy_spawn_count > 1 then
+      enemy_spawn_count = enemy_spawn_count - 1
+    end
+
     reset_level()
-    random3()
+    spawn_enemies()
+    spawn_player()
   end
 
   for _,tank in pairs(tanks) do
@@ -122,8 +151,10 @@ end
 t.keypressed = function (key, scancode, isrepeat)
   if key == "r" then
     print("=====")
+    enemy_spawn_count = 1
     reset_level()
-    random3()
+    spawn_enemies()
+    spawn_player()
   end
 
   for _,tank in pairs(tanks) do
