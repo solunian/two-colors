@@ -156,7 +156,7 @@ function PlayerTank:new(x, y, allprojectiles)
   PlayerTank.super.new(self, x, y, allprojectiles)
   -- set inputs??
   self.tank_type = TANK_TYPES.P1
-  self.speed = 150
+  self.speed = 250
   -- up, left, down, right, fire, plant mine
   self.inputs = {
     up = {"w"},
@@ -257,7 +257,7 @@ function PlayerTank:draw(color)
     local mousex, mousey = input.get_mouse()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.setLineWidth(1)
+    love.graphics.setLineWidth(2)
     love.graphics.line(self.x + self.w / 2, self.y + self.h / 2, mousex, mousey)
 
     love.graphics.rectangle("fill", mousex - 10, mousey - 2, 20, 4)

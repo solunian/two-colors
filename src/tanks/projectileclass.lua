@@ -9,7 +9,7 @@ Projectile = Object:extend()
 function Projectile:new(x, y, direction, parent)
   self.x, self.y = x, y
   self.r = 8
-  self.speed = 350
+  self.speed = 400
   self.direction = direction
   self.dx = self.speed * math.cos(direction)
   self.dy = self.speed * math.sin(direction)
