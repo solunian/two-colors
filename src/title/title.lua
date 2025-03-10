@@ -5,10 +5,11 @@ local title = {}
 
 local title_img
 
-local r = 200
+local r = 150
 local v = 500
 local ball1 = {} -- red ball = x, y, r, dx, dy
 local ball2 = {} -- blue ball
+local intersection_pixels = {}
 
 title.load = function ()
   love.graphics.setDefaultFilter("nearest", "nearest", 1)
@@ -59,17 +60,8 @@ title.update = function (dt)
       b.dy = -math.abs(b.dy)
     end
   end
-end
 
-title.draw = function ()
-  love.graphics.setColor(1, 0, 0)
-  love.graphics.circle("fill", ball1.x, ball1.y, ball1.r)
-
-  love.graphics.setColor(0, 0, 1)
-  love.graphics.circle("fill", ball2.x, ball2.y, ball2.r)
-
-  love.graphics.setColor(0, 1, 0)
-  local intersection_pixels = {}
+  intersection_pixels = {}
   for x = ball1.x - ball1.r, ball1.x + r do
     for y = ball1.y - math.sqrt(ball1.r^2 - (x - ball1.x)^2), ball1.y + math.sqrt(ball1.r^2 - (x - ball1.x)^2) do
       if math.pow(x - ball2.x, 2) + math.pow(y - ball2.y, 2) <= ball2.r^2 then
@@ -77,6 +69,17 @@ title.draw = function ()
       end
     end
   end
+end
+
+title.draw = function ()
+  -- love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+  love.graphics.setColor(1, 0, 0)
+  love.graphics.circle("fill", ball1.x, ball1.y, ball1.r)
+
+  love.graphics.setColor(0, 0, 1)
+  love.graphics.circle("fill", ball2.x, ball2.y, ball2.r)
+
+  love.graphics.setColor(0, 1, 0)
   for _,p in pairs(intersection_pixels) do
     love.graphics.points(p[1], p[2])
   end
