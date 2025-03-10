@@ -9,7 +9,8 @@ Designed to help people correct "lazy eye" (amblyopia) by using those red-blue t
 - menu/options
 - color matching/auto switch
 - tetra
-- tanks from wii play
+- tanks
+- music/sound effects (used beepbox to quickly prototype)
 
 ## Dev Notes
 
@@ -23,6 +24,7 @@ Clone the repo, then install the love2d game engine for your system from https:/
 - each part of game is separated into folders (src/tetra, src/tanks, etc.)
 - libs (that i didn't write) in (src/lib)
 - utils (that i did write) in (src/util)
+- assets
 
 ### Running
 
