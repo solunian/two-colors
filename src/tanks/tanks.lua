@@ -165,13 +165,38 @@ t.keypressed = function (key, scancode, isrepeat)
 end
 
 t.draw = function ()
+  local c1 = picker.lens_rcolor
+  local c2 = picker.lens_lcolor
+  local inverted_color = {1 - (c1[1] + c2[1]) / 2, 1 - (c1[2] + c2[2]) / 2, 1 - (c1[3] + c2[3]) / 2, 0.5}
+  love.graphics.setColor(inverted_color) -- all set to the same color. inverted?? just for hold, queue
+  -- love.graphics.setColor(0, 1, 0, 0.5)
+  local sq_w = constants.window_width / 20
+  local sq_h = constants.window_height / 12
+  for i=0,12-1 do
+    for j=0,20-1 do
+      if (i % 2 == 0) ~= (j % 2 == 0) then
+        love.graphics.rectangle("fill", j * sq_w, i * sq_h, sq_w, sq_h)
+      end
+    end
+  end
+
+
+  -- loop through only dead tanks first. drawn underneath
+  for _,tank in pairs(tanks) do
+    if not tank.is_active then
+      tank:draw(picker.lens_lcolor)
+    end
+  end
+
   -- loop through tables to draw all of them
   for _,tank in pairs(tanks) do
-    -- tank aim line, aim crosshair
-    if tank.tank_type == tankclass.TANK_TYPES.P1 then
-      tank:draw(picker.lens_lcolor)
-    else
-      tank:draw(picker.lens_rcolor)
+    if tank.is_active then
+      -- tank aim line, aim crosshair
+      if tank.tank_type == tankclass.TANK_TYPES.P1 then
+        tank:draw(picker.lens_lcolor)
+      else
+        tank:draw(picker.lens_rcolor)
+      end
     end
 
     for _,proj in pairs(tank.projectiles) do

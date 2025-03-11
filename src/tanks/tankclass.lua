@@ -84,7 +84,7 @@ function Tank:fire()
   local newly_fired_proj = projectileclass.Projectile(self.x + self.w / 2, self.y + self.h / 2, self.rotation, self)
   table.insert(self.projectiles, newly_fired_proj)
   table.insert(self.allprojectiles, newly_fired_proj)
-  print("fire!")
+  -- print("fire!")
 end
 
 function Tank:plant_mine()
@@ -92,7 +92,7 @@ function Tank:plant_mine()
     return
   end
 
-  print("plant mine!")
+  -- print("plant mine!")
 end
 
 -- projectile must have x, y, r
@@ -109,7 +109,7 @@ function Tank:check_collisions_with_projectile()
   -- tank with projectile collision
   for _,proj in pairs(self.allprojectiles) do
     if self:has_collided(proj) and proj.is_live_round then
-      print("dead!")
+      -- print("dead!")
       self.is_active = false
 
       if self.tank_type == TANK_TYPES.E1 then
@@ -272,14 +272,14 @@ end
 ---------------------
 local EnemyTank = Tank:extend() -- inherit Tank
 
-local fire_threshold_time = 1.5
+local fire_threshold_time = 2.5
 local starting_fire_time_offset = fire_threshold_time
 
 function EnemyTank:new(x, y, allprojectiles)
   EnemyTank.super.new(self, x, y, allprojectiles)
 
   self.tank_type = TANK_TYPES.E1
-  self.speed = 125
+  self.speed = 100
 
   -- for cpu movement!!!
   self.move_direction = 0
