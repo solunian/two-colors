@@ -34,6 +34,11 @@ Makefile has all the "necessary" commands compiled together. Use `make` to run t
 
 In the Makefile, but you can also refer to the love2d docs for game distribution [here](https://love2d.org/wiki/Game_Distribution)!
 
+#### Web Build
+
+Using https://github.com/Davidobot/love.js to generate and run a web build after running a normal build.
+Commands for generating the files are in the Makefile.
+
 ### Color
 
 Look through only one tinted lens of glasses, and adjust the color until it turns near black.
