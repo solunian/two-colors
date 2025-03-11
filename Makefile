@@ -13,6 +13,13 @@ build: src/* build/
 run:
 	love build/${gamefile}
 
+clean:
+	rm -rf build
+
+##########################################
+# building for specific target platforms #
+##########################################
+
 build-web: build/
 	bun i
 	bunx love.js build/game.love build/web -c --title ${name}
@@ -21,5 +28,4 @@ build-web: build/
 run-build-web: build/
 	cd build/web && python3 -m http.server 8000
 
-clean:
-	rm -rf build
+
