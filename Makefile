@@ -16,9 +16,8 @@ run:
 clean:
 	rm -rf build
 
-##########################################
-# building for specific target platforms #
-##########################################
+
+# > require `make build` to be run already
 
 build-web: build/
 	bun i
@@ -27,5 +26,3 @@ build-web: build/
 
 run-build-web: build/
 	cd build/web && python3 -m http.server 8000
-
-
